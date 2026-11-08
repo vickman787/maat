@@ -6,7 +6,7 @@ import { useIdentityToken, usePrivy } from "@privy-io/react-auth";
 import { ArrowRight, LoaderCircle, Mail, ShieldCheck } from "lucide-react";
 import { DemoButton } from "./DemoButton";
 
-export function LoginPanel() {
+export function LoginPanel({ nextPath = "/dashboard" }: { nextPath?: string }) {
   const router = useRouter();
   const { ready, authenticated, login, getAccessToken } = usePrivy();
   const { identityToken } = useIdentityToken();
@@ -42,7 +42,11 @@ export function LoginPanel() {
           setSyncing(false);
           return;
         }
-        router.replace(body.needsOnboarding ? "/onboarding" : "/dashboard");
+        router.replace(
+          body.needsOnboarding
+            ? `/onboarding?next=${encodeURIComponent(nextPath)}`
+            : nextPath,
+        );
         router.refresh();
       } catch {
         if (!cancelled) {
@@ -56,14 +60,16 @@ export function LoginPanel() {
     return () => {
       cancelled = true;
     };
-  }, [ready, authenticated, getAccessToken, identityToken, router, retryNonce]);
+  }, [ready, authenticated, getAccessToken, identityToken, router, retryNonce, nextPath]);
 
   return (
     <div className="auth-card">
       <div className="eyebrow">Secure workspace</div>
-      <h1>Sign in with email.</h1>
+      <h1>{nextPath === "/batches/new" ? "Start a reconciliation." : "Welcome back."}</h1>
       <p>
-        Ma&apos;at uses a six-digit one-time code. There is no password to remember, reset, or leak.
+        {nextPath === "/batches/new"
+          ? "Continue with email. If this is your first visit, name your workspace and we’ll take you straight to your source-file upload."
+          : "Sign in with a six-digit one-time code. There is no password to remember, reset, or leak."}
       </p>
 
       {!appId && (

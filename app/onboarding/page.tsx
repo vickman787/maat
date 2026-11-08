@@ -3,14 +3,21 @@ import { redirect } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { OnboardingForm } from "@/components/OnboardingForm";
 import { getAuthContext } from "@/lib/auth";
+import { safePostAuthPath } from "@/lib/navigation";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Set up your workspace" };
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const query = await searchParams;
+  const nextPath = safePostAuthPath(query.next);
   const ctx = await getAuthContext();
   if (!ctx) redirect("/login");
-  if (ctx.workspace) redirect("/dashboard");
+  if (ctx.workspace) redirect(nextPath);
   if (!ctx.user) redirect("/login");
 
   return (
@@ -25,7 +32,10 @@ export default async function OnboardingPage() {
           This creates one owner workspace, tied to your verified Privy identity. It is private to you
           and cannot be reached from another account.
         </p>
-        <OnboardingForm suggestedName={ctx.user.email?.split("@")[0]?.replace(/[._-]/g, " ") ?? ""} />
+        <OnboardingForm
+          suggestedName={ctx.user.email?.split("@")[0]?.replace(/[._-]/g, " ") ?? ""}
+          nextPath={nextPath}
+        />
         <hr className="divider" />
         <div className="small muted">
           Signed in as <strong>{ctx.user.email ?? "verified Privy identity"}</strong>

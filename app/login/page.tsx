@@ -3,15 +3,22 @@ import { redirect } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { LoginPanel } from "@/components/LoginPanel";
 import { getAuthContext } from "@/lib/auth";
+import { safePostAuthPath } from "@/lib/navigation";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Sign in" };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const query = await searchParams;
+  const nextPath = safePostAuthPath(query.next);
   const ctx = await getAuthContext();
-  if (ctx?.workspace) redirect("/dashboard");
-  if (ctx?.user) redirect("/onboarding");
+  if (ctx?.workspace) redirect(nextPath);
+  if (ctx?.user) redirect(`/onboarding?next=${encodeURIComponent(nextPath)}`);
 
   return (
     <div className="auth-page">
@@ -29,7 +36,7 @@ export default async function LoginPage() {
         </small>
       </aside>
       <main className="auth-main">
-        <LoginPanel />
+        <LoginPanel nextPath={nextPath} />
       </main>
       <div style={{ position: "fixed", bottom: "1rem", left: "50%", transform: "translateX(-50%)" }}>
         <Link href="/" className="text-link">

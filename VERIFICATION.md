@@ -48,23 +48,23 @@ standalone build was executed on Linux in this environment.
 1. Owner performed a real Privy email OTP login in the running app. The local database recorded one
    verified `did:privy:` user and one owner workspace. A separate browser check confirmed the modal
    uses the approved logo with no Google or wallet options.
-2. Landing -> Explore demo -> dashboard.
-3. Verified canonical figures: USD 18,000 invoiced, USD 16,500 payments, 9/12 exact, 3 to review,
+3. Landing -> Explore demo -> dashboard.
+4. Verified canonical figures: USD 18,000 invoiced, USD 16,500 payments, 9/12 exact, 3 to review,
    2 unallocated payment rows totaling USD 3,000.
-4. Workbench -> Partial tab -> INV-010 evidence.
-5. Verified rule-based fallback label with no configured AI.
-6. Confirmed the USD 1,000 partial; verified USD 500 outstanding, USD 14,500 confirmed, USD 3,500
+5. Workbench -> Partial tab -> INV-010 evidence.
+6. Verified rule-based fallback label with no configured AI.
+7. Confirmed the USD 1,000 partial; verified USD 500 outstanding, USD 14,500 confirmed, USD 3,500
    outstanding, one unallocated payment (P011, USD 2,000).
-7. Downloaded reconciliation and unallocated CSVs through authenticated handlers and checked values.
-8. Opened the printable report and checked unresolved items.
-9. Undid the allocation; verified reversal event and restored totals.
-10. Reloaded the page and confirmed persistence.
-11. Exited the demo and cleared the local session.
-12. Created a real workspace session in the test database, uploaded both sample CSVs through the
+8. Downloaded reconciliation and unallocated CSVs through authenticated handlers and checked values.
+9. Opened the printable report and checked unresolved items.
+10. Undid the allocation; verified reversal event and restored totals.
+11. Reloaded the page and confirmed persistence.
+12. Exited the demo and cleared the local session.
+13. Created a real workspace session in the test database, uploaded both sample CSVs through the
     browser, waited for actual worker stages, and verified matching and persistence.
-13. Confirmed a second workspace receives 403/404 for the first workspace's export and review.
-14. Uploaded duplicate invoice IDs and verified exact row/column validation text.
-15. Opened and closed the mobile navigation drawer; asserted no page-level horizontal overflow at
+14. Confirmed a second workspace receives 403/404 for the first workspace's export and review.
+15. Uploaded duplicate invoice IDs and verified exact row/column validation text.
+16. Opened and closed the mobile navigation drawer; asserted no page-level horizontal overflow at
     390px and 768px.
 
 Actual screenshots (not design mockups):

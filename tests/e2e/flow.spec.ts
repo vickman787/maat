@@ -17,6 +17,18 @@ test("login screen loads the Privy email modal without social or wallet options"
   await page.screenshot({ path: "docs/screenshots/00-login-1440.png", fullPage: true });
 });
 
+test("Sign in and Get started lead to distinct destinations", async ({ page }) => {
+  await page.goto("/");
+  await page.locator(".landing-nav").getByRole("link", { name: "Sign in" }).click();
+  await page.waitForURL(/\/login\?next=/);
+  await expect(page.getByRole("heading", { name: "Welcome back." })).toBeVisible();
+
+  await page.goto("/");
+  await page.locator(".landing-nav").getByRole("link", { name: "Get started" }).click();
+  await page.waitForURL(/\/login\?next=/);
+  await expect(page.getByRole("heading", { name: "Start a reconciliation." })).toBeVisible();
+});
+
 
 test("demo walkthrough: review, confirm, export, undo, refresh, logout", async ({ page, context }) => {
   await page.goto("/");

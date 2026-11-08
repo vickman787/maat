@@ -29,10 +29,10 @@ export default async function LandingPage() {
             </Link>
           ) : (
             <>
-              <Link href="/login" className="button secondary">
+              <Link href="/login?next=%2Fdashboard" className="button secondary">
                 Sign in
               </Link>
-              <Link href="/login" className="button">
+              <Link href="/login?next=%2Fbatches%2Fnew" className="button">
                 Get started <ArrowRight size={15} />
               </Link>
             </>
@@ -56,7 +56,7 @@ export default async function LandingPage() {
                 Open workspace <ArrowRight size={15} />
               </Link>
             ) : (
-              <Link href="/login" className="button gold">
+              <Link href="/login?next=%2Fbatches%2Fnew" className="button gold">
                 Get started <ArrowRight size={15} />
               </Link>
             )}
@@ -163,8 +163,8 @@ export default async function LandingPage() {
           any time without affecting anyone else.
         </p>
         <div className="row" style={{ justifyContent: "center" }}>
-          <Link href="/login" className="button">
-            Sign in with email <ArrowRight size={15} />
+          <Link href="/login?next=%2Fbatches%2Fnew" className="button">
+            Start with email <ArrowRight size={15} />
           </Link>
           <DemoButton className="button secondary" />
         </div>

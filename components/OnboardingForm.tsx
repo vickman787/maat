@@ -4,7 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 
-export function OnboardingForm({ suggestedName = "" }: { suggestedName?: string }) {
+export function OnboardingForm({
+  suggestedName = "",
+  nextPath = "/dashboard",
+}: {
+  suggestedName?: string;
+  nextPath?: string;
+}) {
   const router = useRouter();
   const [name, setName] = useState(suggestedName);
   const [busy, setBusy] = useState(false);
@@ -26,7 +32,7 @@ export function OnboardingForm({ suggestedName = "" }: { suggestedName?: string 
         setBusy(false);
         return;
       }
-      router.replace("/dashboard");
+      router.replace(nextPath);
       router.refresh();
     } catch {
       setError("Your workspace could not be created. Check your connection.");
