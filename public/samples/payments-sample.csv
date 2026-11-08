@@ -1,0 +1,12 @@
+payment_id,payer_name,amount,currency,reference,paid_at
+P001,"Acme Works",1500.00,USD,INV-001,2026-11-05
+P002,"Northstar Co.",1500.00,USD,INV-002,2026-11-07
+P003,"Harbor & Pine",1500.00,USD,INV-003,2026-11-08
+P004,"Juniper Labs",1500.00,USD,INV-004,2026-11-09
+P005,"Willow Studio",1500.00,USD,INV-005,2026-11-10
+P006,"Copperline",1500.00,USD,INV-006,2026-11-11
+P007,"Bluebird Design",1500.00,USD,INV-007,2026-11-12
+P008,"Lumen Works",1500.00,USD,INV-008,2026-11-13
+P009,"Cedar & Co.",1500.00,USD,INV-009,2026-11-14
+P010,"Orbit Creative",1000.00,USD,INV-010,2026-11-06
+P011,"Studio Meridian",2000.00,USD,,2026-11-16

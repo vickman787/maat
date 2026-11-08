@@ -1,0 +1,29 @@
+[Unit]
+Description=Ma'at reconciliation web application
+Documentation=https://github.com/your-org/maat
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=maat
+Group=maat
+WorkingDirectory=/opt/maat
+Environment=NODE_ENV=production
+Environment=PORT=3000
+EnvironmentFile=/etc/maat/maat.env
+ExecStart=/usr/bin/node /opt/maat/node_modules/next/dist/bin/next start -p 3000
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+KillSignal=SIGTERM
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/maat/data
+UMask=0027
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

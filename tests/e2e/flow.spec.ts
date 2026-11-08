@@ -1,0 +1,246 @@
+﻿import { expect, test } from "@playwright/test";
+import { request as playwrightRequest } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
+import { openDatabase } from "../../lib/db";
+import { createAccount } from "./helpers";
+
+test.describe.configure({ mode: "serial" });
+
+test("login screen loads the Privy email modal without social or wallet options", async ({ page }) => {
+  await page.goto("/login");
+  await expect(page.getByRole("heading", { name: "Sign in with email." })).toBeVisible();
+  await page.getByRole("button", { name: /Continue with email/i }).click();
+  await expect(page.getByText(/Use a one-time code sent to your email/i)).toBeVisible({ timeout: 30000 });
+  await expect(page.getByText(/Continue with Google/i)).toHaveCount(0);
+  await expect(page.getByText(/Connect a wallet/i)).toHaveCount(0);
+  await page.screenshot({ path: "docs/screenshots/00-login-1440.png", fullPage: true });
+});
+
+
+test("demo walkthrough: review, confirm, export, undo, refresh, logout", async ({ page, context }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Know what's paid");
+  await page.getByRole("button", { name: /Explore demo/ }).first().click();
+  await page.waitForURL("**/dashboard", { timeout: 60000 });
+
+  await expect(page.getByRole("heading", { name: "Everything in balance." })).toBeVisible();
+  await expect(page.getByText("$18,000").first()).toBeVisible();
+  await expect(page.getByText("$16,500").first()).toBeVisible();
+  await expect(page.getByText("9 / 12")).toBeVisible();
+  await expect(page.getByText("2 payment rows totaling $3,000.00 remain unallocated.")).toBeVisible({ timeout: 30000 });
+
+  await page.getByRole("link", { name: /Review exceptions/ }).click();
+  await page.waitForURL(/\/batches\/[0-9a-f-]{36}$/);
+  const batchUrl = page.url();
+  const batchId = batchUrl.split("/").pop()!;
+
+  await expect(page.getByText("9 exact matches")).toBeVisible({ timeout: 60000 });
+  await expect(page.getByText("2 unassigned payment rows")).toBeVisible();
+  await expect(page.getByText("$3,000")).toBeVisible();
+
+  await page.getByRole("tab", { name: /Partial/ }).click();
+  await page.getByRole("link", { name: /Review/ }).first().click();
+  await page.waitForURL(/\/review\//);
+  const reviewUrl = page.url();
+  await expect(page.getByText("Invoice INV-010")).toBeVisible();
+  await expect(page.getByText("AI explanation unavailable; showing rule-based evidence.")).toBeVisible();
+  await expect(page.getByText("Outstanding if assigned")).toBeVisible();
+
+  await page.locator('input[type="checkbox"]').check();
+  await page.getByRole("button", { name: /Save confirmed allocation/ }).click();
+  await expect(page.getByRole("status")).toContainText(/Allocation confirmed/i);
+  await expect(page.getByText("$1,000.00").first()).toBeVisible();
+
+  await page.goto(batchUrl);
+  await expect(page.getByText("1 unassigned payment rows")).toBeVisible({ timeout: 30000 });
+  await expect(page.getByText("$2,000")).toBeVisible();
+  await expect(page.getByText("$3,500")).toBeVisible();
+
+  await page.getByRole("link", { name: /Export report/ }).click();
+  await page.waitForURL(/\/report$/);
+  await expect(page.getByText("$14,500").first()).toBeVisible();
+  await expect(page.getByText("Payments not allocated")).toBeVisible();
+  await expect(page.getByText(/INV-012/).first()).toBeVisible();
+  await expect(page.getByText(/remain unallocated \(P011\)/)).toBeVisible();
+
+  const exportResponse = await page.request.get(`/api/batches/${batchId}/export/invoices`);
+  expect(exportResponse.status()).toBe(200);
+  const csv = await exportResponse.text();
+  expect(csv).toContain("invoice_id,customer_name");
+  expect(csv).toContain("INV-010");
+  expect(csv).toContain("1000.00,500.00");
+  expect(csv.startsWith("'=")).toBe(false);
+
+  const unallocatedResponse = await page.request.get(`/api/batches/${batchId}/export/unallocated`);
+  const unallocatedCsv = await unallocatedResponse.text();
+  expect(unallocatedCsv).toContain("P011");
+  expect(unallocatedCsv).not.toContain("P010,");
+
+  await page.goto(reviewUrl);
+  await page.getByRole("button", { name: /^Undo$/ }).click();
+  await page.getByRole("button", { name: /Confirm undo/ }).click();
+  await expect(page.getByRole("status")).toContainText(/undone/i);
+  await expect(page.getByText("Reversal recorded")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Review the difference." })).toBeVisible();
+  await expect(page.getByText("Reversal recorded")).toBeVisible();
+
+  await page.goto(batchUrl);
+  await expect(page.getByText("2 unassigned payment rows")).toBeVisible({ timeout: 30000 });
+  await expect(page.getByText("$3,000")).toBeVisible();
+
+  await page.goto("/dashboard");
+  await page.getByRole("button", { name: "Exit demo" }).first().click();
+  await page.waitForURL("http://localhost:3000/");
+  await context.clearCookies();
+});
+
+test("real CSV upload validates, matches, persists, and rejects cross-workspace access", async ({ page, context }) => {
+  const db = openDatabase();
+  const account = createAccount(db, `E2E Studio ${Date.now()}`);
+  const other = createAccount(db, `Other E2E Studio ${Date.now()}`);
+  db.close();
+
+  await context.addCookies([
+    {
+      name: "maat_session",
+      value: account.token,
+      domain: "localhost",
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+  ]);
+
+  await page.goto("/batches/new");
+  await page.getByLabel("Batch name").fill(`E2E batch ${Date.now()}`);
+  await page.locator("#invoices-file").setInputFiles(path.join(process.cwd(), "public", "samples", "invoices-sample.csv"));
+  await page.locator("#payments-file").setInputFiles(path.join(process.cwd(), "public", "samples", "payments-sample.csv"));
+  await expect(page.getByText("invoices-sample.csv").first()).toBeVisible();
+  await expect(page.getByText("payments-sample.csv").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Validate & match/ })).toBeEnabled();
+  await page.getByRole("button", { name: /Validate & match/ }).click();
+  await page.waitForURL(/\/batches\/[0-9a-f-]{36}$/, { timeout: 60000 });
+  const batchId = page.url().split("/").pop()!;
+
+  await expect(page.getByText("9 exact matches")).toBeVisible({ timeout: 90000 });
+  await expect(page.getByText("3 pending review")).toBeVisible();
+  await expect(page.getByText("2 unassigned payment rows")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByText("9 exact matches")).toBeVisible();
+  await expect(page.getByText("INV-001").first()).toBeVisible();
+
+  const otherContext = await playwrightRequest.newContext({
+    baseURL: "http://localhost:3000",
+    extraHTTPHeaders: { Cookie: `maat_session=${other.token}` },
+  });
+  const crossExport = await otherContext.get(`/api/batches/${batchId}/export/invoices`);
+  expect([403, 404]).toContain(crossExport.status());
+  const crossReview = await otherContext.post(`/api/batches/${batchId}/review`, {
+    data: { action: "leave_unresolved", invoiceRowId: "any" },
+  });
+  expect([403, 404]).toContain(crossReview.status());
+  await otherContext.dispose();
+
+  const ownContext = await playwrightRequest.newContext({
+    baseURL: "http://localhost:3000",
+    extraHTTPHeaders: { Cookie: `maat_session=${account.token}` },
+  });
+  const ownExport = await ownContext.get(`/api/batches/${batchId}/export/invoices`);
+  expect(ownExport.status()).toBe(200);
+  await ownContext.dispose();
+});
+
+test("upload validation shows exact row and column errors", async ({ page, context }) => {
+  const db = openDatabase();
+  const account = createAccount(db, `Validation Studio ${Date.now()}`);
+  db.close();
+  await context.addCookies([
+    {
+      name: "maat_session",
+      value: account.token,
+      domain: "localhost",
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+  ]);
+  await page.goto("/batches/new");
+  await page.getByLabel("Batch name").fill("Invalid batch");
+  await page.locator("#invoices-file").setInputFiles({
+    name: "invoices-bad.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from(
+      "invoice_id,customer_name,amount,currency,due_date\r\nINV-1,Acme,1500.00,USD,2026-11-05\r\nINV-1,Beta,1500.00,USD,2026-11-06\r\n",
+    ),
+  });
+  await page.locator("#payments-file").setInputFiles({
+    name: "payments-good.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from(
+      "payment_id,payer_name,amount,currency,reference,paid_at\r\nP1,Acme,1500.00,USD,INV-1,2026-11-05\r\n",
+    ),
+  });
+  await page.getByRole("button", { name: /Validate & match/ }).click();
+  const summary = page.locator(".validation-summary");
+  await expect(summary).toContainText("Duplicate invoice ID");
+  await expect(summary).toContainText("row 2");
+  await expect(summary).toContainText("invoice_id");
+});
+
+test("responsive layouts do not overflow and capture screenshots", async ({ page }) => {
+  fs.mkdirSync(path.join(process.cwd(), "docs", "screenshots"), { recursive: true });
+  await page.goto("/");
+  await page.screenshot({ path: "docs/screenshots/01-landing-1440.png", fullPage: true });
+
+  await page.setViewportSize({ width: 768, height: 1000 });
+  await page.goto("/");
+  const tabletOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(tabletOverflow).toBeLessThanOrEqual(1);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: /Explore demo/ }).first().click();
+  await page.waitForURL("**/dashboard", { timeout: 60000 });
+  const mobileOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(mobileOverflow).toBeLessThanOrEqual(1);
+  await page.screenshot({ path: "docs/screenshots/02-dashboard-390.png", fullPage: true });
+
+  await page.getByRole("button", { name: "Open navigation" }).click();
+  const drawer = page.getByRole("complementary", { name: "Mobile navigation" });
+  await expect(drawer.getByRole("link", { name: "Settings" })).toBeVisible();
+  await drawer.getByRole("button", { name: "Close navigation" }).click();
+  await expect(drawer).toHaveCount(0);
+
+  await page.goto("/batches");
+  const mobileOverflow2 = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(mobileOverflow2).toBeLessThanOrEqual(1);
+  await page.screenshot({ path: "docs/screenshots/03-batches-390.png", fullPage: true });
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/dashboard");
+  await page.screenshot({ path: "docs/screenshots/04-dashboard-1440.png", fullPage: true });
+  const batchLink = page.getByRole("link", { name: /Review exceptions/ });
+  await batchLink.click();
+  await page.waitForURL(/\/batches\/[0-9a-f-]{36}$/);
+  await expect(page.getByRole("heading", { name: "November client payments" })).toBeVisible();
+  await expect(page.getByText("9 exact matches")).toBeVisible();
+  await page.screenshot({ path: "docs/screenshots/05-workbench-1440.png", fullPage: true });
+  await page.getByRole("tab", { name: /Partial/ }).click();
+  await page.getByRole("link", { name: /Review/ }).first().click();
+  await page.waitForURL(/\/review\//);
+  await page.screenshot({ path: "docs/screenshots/06-review-1440.png", fullPage: true });
+  const reviewUrl = page.url();
+  const batchBase = reviewUrl.replace(/\/review\/.*$/, "");
+  await page.goto(`${batchBase}/report`);
+  await page.screenshot({ path: "docs/screenshots/07-report-1440.png", fullPage: true });
+});
+
+
+
+
+
+
+
