@@ -1,10 +1,10 @@
 ﻿import { describe, expect, it } from "vitest";
 import { getBatchOverview } from "../lib/batches";
-import { cleanupExpiredDemos, createDemoWorkspace, resetDemoWorkspace } from "../lib/demo";
+import { cleanupExpiredDemos, createDemoWorkspace, resetDemoWorkspace } from "./fixtures/legacy-demo";
 import { processQueuedJob } from "../lib/jobs";
 import { ImportValidationError, importBatch } from "../lib/importer";
 import { consumeRateLimit } from "../lib/rate-limit";
-import { FIXTURE_INVOICE_MAPPING, FIXTURE_PAYMENT_MAPPING } from "../lib/fixture";
+import { FIXTURE_INVOICE_MAPPING, FIXTURE_PAYMENT_MAPPING } from "./fixtures/canonical";
 import { getDb } from "../lib/db";
 import { makeDb } from "./helpers";
 

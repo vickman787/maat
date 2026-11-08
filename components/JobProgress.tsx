@@ -37,6 +37,11 @@ export function JobProgress({
   const [pollError, setPollError] = useState(false);
   const lastStatus = useRef(initialJob?.status ?? "");
 
+  useEffect(() => {
+    setJob(initialJob);
+    lastStatus.current = initialJob?.status ?? "";
+  }, [initialJob]);
+
   const active = job && ["queued", "validating", "matching", "explaining"].includes(job.status);
 
   useEffect(() => {
@@ -45,7 +50,7 @@ export function JobProgress({
     const timer = setInterval(async () => {
       try {
         const response = await fetch(`/api/batches/${batchId}/status`, { cache: "no-store" });
-        if (!response.ok) return;
+        if (!response.ok) { setPollError(true); return; }
         const body = (await response.json()) as { job: JobState | null };
         if (cancelled || !body.job) return;
         setJob(body.job);
@@ -77,9 +82,11 @@ export function JobProgress({
 
   async function retry() {
     setBusy(true);
-    await fetch(`/api/batches/${batchId}/retry`, { method: "POST" });
-    setBusy(false);
-    router.refresh();
+    try {
+      const response = await fetch(`/api/batches/${batchId}/retry`, { method: "POST" });
+      if (!response.ok) { setPollError(true); return; }
+      router.refresh();
+    } catch { setPollError(true); } finally { setBusy(false); }
   }
 
   if (job.status === "failed") {
@@ -90,7 +97,7 @@ export function JobProgress({
           <div style={{ flex: 1 }}>
             <h2>Reconciliation did not finish.</h2>
             <p className="job-stage">
-              {job.error ?? "The worker stopped before completing this job."}
+              {pollError ? "Retry failed. Check your connection and try again." : job.error ?? "The worker stopped before completing this job."}
             </p>
             <p className="job-stage">
               Deterministic results that were already committed are preserved. You can retry without
@@ -137,6 +144,7 @@ function RerunButton({ batchId }: { batchId: string }) {
   async function rerun() {
     setBusy(true);
     setMessage(null);
+    try {
     const response = await fetch(`/api/batches/${batchId}/rerun`, { method: "POST" });
     const body = (await response.json()) as { error?: string };
     setBusy(false);
@@ -145,6 +153,7 @@ function RerunButton({ batchId }: { batchId: string }) {
       return;
     }
     router.refresh();
+    } catch { setMessage("Matching could not be rerun. Check your connection."); } finally { setBusy(false); }
   }
 
   return (

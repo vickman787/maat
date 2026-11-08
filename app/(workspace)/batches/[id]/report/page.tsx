@@ -84,7 +84,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
           </div>
           <h2>{batch.name}</h2>
           <p className="muted">
-            {ctx.workspace.name} · {batch.currency} · {ctx.workspace.isDemo ? "Demo data" : "Private workspace"} ·
+            {ctx.workspace.name} · {batch.currency} · {"Private workspace"} ·
             Prepared {formatDateTime(generatedAt)}
           </p>
           <div className="report-metrics">
@@ -109,6 +109,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
                 <td>Exact invoice matches</td>
                 <td>{summary.exact_count}</td>
               </tr>
+              <tr><td>Manually settled invoices</td><td>{overview.invoices.filter((invoice) => invoice.status === "settled").length}</td></tr>
               <tr>
                 <td>Partial payments</td>
                 <td>
@@ -210,8 +211,8 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
           <div className="report-signoff">
             <span>
-              Prepared for {ctx.user?.email ?? "Demo visitor"}
-              {ctx.workspace.isDemo ? " · sample workspace" : ""}
+              Prepared for {ctx.user?.email ?? ctx.user?.privyDid ?? ctx.workspace.name}
+              
             </span>
             <span>System rules and human decisions recorded · {summary.needs_review_count} pending</span>
           </div>

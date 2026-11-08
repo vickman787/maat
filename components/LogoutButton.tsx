@@ -4,7 +4,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useState } from "react";
 import { LogOut } from "lucide-react";
 
-export function LogoutButton({ demo = false }: { demo?: boolean }) {
+export function LogoutButton() {
   const { logout, authenticated } = usePrivy();
   const [busy, setBusy] = useState(false);
 
@@ -16,12 +16,12 @@ export function LogoutButton({ demo = false }: { demo?: boolean }) {
       // The server session clear below is authoritative.
     }
     await fetch("/api/auth/logout", { method: "POST" });
-    window.location.assign(demo ? "/" : "/login");
+    window.location.assign("/login");
   }
 
   return (
     <button type="button" className="button secondary" onClick={signOut} disabled={busy}>
-      <LogOut size={15} /> {busy ? "Signing out…" : demo ? "Exit demo" : "Sign out"}
+      <LogOut size={15} /> {busy ? "Signing out…" : "Sign out"}
     </button>
   );
 }

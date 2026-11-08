@@ -4,7 +4,9 @@
   "private": true,
   "description": "Ma'at - invoice and payment reconciliation workspace",
   "packageManager": "pnpm@12.18.0",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "concurrently -k -n web,worker -c cyan,yellow \"next dev -p 3000\" \"tsx watch worker/main.ts\"",
     "dev:web": "next dev -p 3000",
@@ -15,13 +17,13 @@
     "worker": "tsx worker/main.ts",
     "worker:prod": "tsx worker/main.ts",
     "migrate": "tsx scripts/migrate.ts",
-    "seed:demo": "tsx scripts/seed-demo.ts",
     "lint": "eslint app components lib worker tests",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "db:backup": "tsx scripts/backup.ts"
+    "db:backup": "tsx scripts/backup.ts",
+    "verify:ai": "tsx scripts/verify-ai.ts"
   },
   "dependencies": {
     "@privy-io/react-auth": "3.51.3",
@@ -48,6 +50,7 @@
     "eslint": "^9.39.0",
     "eslint-config-next": "15.5.29",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "eslint-plugin-react-hooks": "^5.2.0"
   }
 }

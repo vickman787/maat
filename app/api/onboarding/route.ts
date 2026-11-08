@@ -21,9 +21,10 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ ok: true, workspaceId: workspace.workspaceId });
     return attachSession(response, {
       kind: "user",
+      privyAccessToken: ctx.session.kind === "user" ? ctx.session.privyAccessToken : undefined,
       userId: ctx.user.id,
       workspaceId: workspace.workspaceId,
-      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      exp: ctx.session.exp,
     });
   } catch (error) {
     if (error instanceof AuthError) return handleApiError(error);

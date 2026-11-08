@@ -18,7 +18,7 @@ export default async function WorkspaceLayout({ children }: { children: React.Re
     : {
         label: "Demo visitor",
         email: null,
-        role: "demo",
+        role: "member",
       };
 
   return (

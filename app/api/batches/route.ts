@@ -20,9 +20,6 @@ export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
     const ctx = await requireWorkspaceContext();
-    if (ctx.workspace.isDemo) {
-      return jsonError("Personal uploads are disabled in the demo workspace. Sign in to upload your files.", 403);
-    }
     const form = await request.formData();
     const name = form.get("name");
     const currency = form.get("currency");

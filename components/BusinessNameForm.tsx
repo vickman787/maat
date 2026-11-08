@@ -35,7 +35,7 @@ export function BusinessNameForm({ initialName, disabled }: { initialName: strin
     <form onSubmit={submit} className="stack" noValidate>
       {disabled && (
         <div className="form-note">
-          The demo workspace name is fixed. Create a personal workspace to update business settings.
+          Workspace settings are unavailable.
         </div>
       )}
       {message && <div className="form-note" role="status">{message}</div>}

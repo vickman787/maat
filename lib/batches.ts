@@ -28,6 +28,7 @@ export type InvoiceView = {
   dueDate: string | null;
   sourceRow: number;
   sourceFile: string;
+  originalValues: Record<string, string>;
   allocatedMinor: number;
   outstandingMinor: number;
   status: InvoiceStatus;
@@ -55,6 +56,7 @@ export type PaymentView = {
   paidAt: string | null;
   sourceRow: number;
   sourceFile: string;
+  originalValues: Record<string, string>;
   allocatedMinor: number;
   remainingMinor: number;
 };
@@ -213,7 +215,8 @@ export function getBatchOverview(
     const suggestion = suggestionByInvoice.get(row.id) ?? null;
     let status: InvoiceStatus;
     if (outstandingMinor <= 0) {
-      status = "exact";
+      status = allocationsByInvoice.get(row.id)?.every((allocation) => allocation.source === "automatic")
+        ? "exact" : "settled";
     } else if (allocatedMinor > 0) {
       status = "partial";
     } else if (suggestion?.type === "partial" && suggestion.status === "pending") {
@@ -244,6 +247,7 @@ export function getBatchOverview(
       dueDate: row.due_date,
       sourceRow: row.source_row_number,
       sourceFile: row.original_filename,
+      originalValues: JSON.parse(row.raw_json) as Record<string, string>,
       allocatedMinor,
       outstandingMinor,
       status,
@@ -265,6 +269,7 @@ export function getBatchOverview(
       paidAt: row.paid_at,
       sourceRow: row.source_row_number,
       sourceFile: row.original_filename,
+      originalValues: JSON.parse(row.raw_json) as Record<string, string>,
       allocatedMinor,
       remainingMinor: row.amount_minor - allocatedMinor,
     };

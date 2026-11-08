@@ -92,7 +92,7 @@ async function explainSuggestions(
       `SELECT * FROM suggestions
        WHERE batch_id = ? AND workspace_id = ? AND status = 'pending'
          AND type IN ('partial','ambiguous','unpaid')
-       ORDER BY created_at LIMIT 10`,
+       ORDER BY created_at`,
     )
     .all(job.batch_id, job.workspace_id) as Suggestion[];
   let succeeded = 0;
@@ -121,23 +121,15 @@ async function explainSuggestions(
         source_file: invoiceSource.original_filename,
         source_row: invoiceSource.source_row_number,
       },
-      candidates:
-        candidate && payment
-          ? [
-              {
-                row_id: candidate.id,
-                payment_id: payment.paymentId,
-                payer_name: payment.payerName,
-                amount_minor: payment.amountMinor,
-                currency: payment.currency,
-                reference: payment.reference,
-                paid_at: payment.paidAt,
-                source_file: candidate.original_filename,
-                source_row: candidate.source_row_number,
-                signals,
-              },
-            ]
-          : [],
+      candidates: (suggestion.payment_row_id
+        ? overview.payments.filter((row) => row.id === suggestion.payment_row_id)
+        : overview.payments.filter((row) => Array.isArray(signals.candidate_payment_ids) && signals.candidate_payment_ids.includes(row.paymentId)))
+        .slice(0, 3).map((row) => ({
+          row_id: row.id, payment_id: row.paymentId, payer_name: row.payerName,
+          amount_minor: row.amountMinor, currency: row.currency, reference: row.reference,
+          paid_at: row.paidAt, source_file: row.sourceFile, source_row: row.sourceRow,
+          signals,
+        })),
       deterministic: {
         suggestion_type: suggestion.type,
         rule_reason: suggestion.rule_reason,
@@ -277,6 +269,8 @@ export async function processClaimedJob(db: Database.Database, job: Job): Promis
           )
           .get(allocation.paymentRowId, job.workspace_id) as { id: string } | undefined;
         if (existing) continue;
+        const balance = db.prepare(`SELECT i.amount_minor - COALESCE((SELECT SUM(a.amount_minor) FROM allocations a WHERE a.invoice_row_id = i.id AND a.reversed_at IS NULL), 0) AS remaining FROM invoice_rows i WHERE i.id = ? AND i.workspace_id = ?`).get(allocation.invoiceRowId, job.workspace_id) as { remaining: number } | undefined;
+        if (!balance || balance.remaining !== allocation.amountMinor) continue;
         const allocationId = newId();
         const eventId = newId();
         db.prepare(
@@ -421,14 +415,14 @@ export async function processQueuedJob(db: Database.Database, jobId?: string): P
   return true;
 }
 
-export function recoverInterruptedJobs(db: Database.Database): number {
-  const cutoff = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+export function recoverInterruptedJobs(db: Database.Database, onStartup = false): number {
+  const cutoff = new Date(Date.now() - (onStartup ? 0 : 5 * 60 * 1000)).toISOString();
   const rows = db
     .prepare(
       `SELECT * FROM jobs
-       WHERE status IN ('validating','matching','explaining') AND started_at IS NOT NULL AND started_at < ?`,
+       WHERE status IN ('validating','matching','explaining') AND started_at IS NOT NULL AND (? = 1 OR started_at < ?)`,
     )
-    .all(cutoff) as Job[];
+    .all(onStartup ? 1 : 0, cutoff) as Job[];
   for (const job of rows) {
     if (job.retry_count < job.max_retries) {
       db.prepare(

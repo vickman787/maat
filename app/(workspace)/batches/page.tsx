@@ -27,36 +27,22 @@ export default async function BatchesPage() {
           <h1>Reconciliations</h1>
           <p>Each batch keeps its own currency, source files, matching state, review history, and exports.</p>
         </div>
-        {!ctx.workspace.isDemo && (
           <div className="page-actions">
             <Link href="/batches/new" className="button">
               <Plus size={15} /> New reconciliation
             </Link>
           </div>
-        )}
       </div>
 
-      {ctx.workspace.isDemo && (
-        <div className="notice" style={{ marginBottom: "1rem" }}>
-          Demo workspace: personal uploads are disabled. You can inspect the sample batch, confirm or
-          undo allocations, and export reports. Reset the demo any time from the banner.
-        </div>
-      )}
 
       {summaries.length === 0 ? (
         <div className="empty-state">
           <Upload size={30} aria-hidden="true" />
           <h2>No batches yet.</h2>
-          <p>Upload two CSVs to begin. The sample files are on the upload screen if you want to trial the workflow.</p>
-          {ctx.workspace.isDemo ? (
-            <Link className="button" href="/dashboard">
-              Return to dashboard
-            </Link>
-          ) : (
+          <p>Upload your invoices CSV and payments CSV to begin.</p>
             <Link href="/batches/new" className="button">
               Upload source files
             </Link>
-          )}
         </div>
       ) : (
         <section className="panel flush">

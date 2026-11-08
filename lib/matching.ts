@@ -115,8 +115,9 @@ export function planMatching(
   const paymentsByName = new Map<string, MatchPayment[]>();
   const paymentsByAmount = new Map<string, MatchPayment[]>();
   const paymentsByDate = new Map<string, MatchPayment[]>();
+  const paymentsByToken = new Map<string, MatchPayment[]>();
   for (const payment of payments) {
-    if ((paymentAllocated.get(payment.id) ?? 0) >= payment.amountMinor) continue;
+    if ((paymentAllocated.get(payment.id) ?? 0) > 0) continue;
     if (payment.reference) {
       const key = referenceKey(payment.reference);
       const list = paymentsByReference.get(key) ?? [];
@@ -124,6 +125,11 @@ export function planMatching(
       paymentsByReference.set(key, list);
     }
     const nameKey = normalizeCompany(payment.payerName);
+    for (const token of new Set(nameKey.split(" ").filter(Boolean))) {
+      const bucket = paymentsByToken.get(token) ?? [];
+      if (bucket.length < 50) bucket.push(payment);
+      paymentsByToken.set(token, bucket);
+    }
     const nameList = paymentsByName.get(nameKey) ?? [];
     nameList.push(payment);
     paymentsByName.set(nameKey, nameList);
@@ -165,7 +171,7 @@ export function planMatching(
           signals: {
             reference: invoice.invoiceId,
             duplicate_reference: true,
-            candidate_payment_ids: candidatesByRef.map((payment) => payment.paymentId),
+            candidate_payment_ids: candidatesByRef.slice(0, 3).map((payment) => payment.paymentId),
           },
         });
         continue;
@@ -238,26 +244,22 @@ export function planMatching(
 
     const candidatePool = new Map<string, MatchPayment>();
     const addCandidate = (payment: MatchPayment | undefined) => {
-      if (!payment || usedPayments.has(payment.id)) return;
-      if ((paymentAllocated.get(payment.id) ?? 0) >= payment.amountMinor) return;
+      if (!payment || usedPayments.has(payment.id) || candidatePool.size >= 50) return;
+      if ((paymentAllocated.get(payment.id) ?? 0) > 0) return;
       candidatePool.set(payment.id, payment);
     };
 
-    for (const payment of paymentsByName.get(normalizeCompany(invoice.customerName)) ?? []) addCandidate(payment);
-    for (const payment of paymentsByAmount.get(`${outstanding}`) ?? []) addCandidate(payment);
+    for (const payment of (paymentsByName.get(normalizeCompany(invoice.customerName)) ?? []).slice(0, 50)) addCandidate(payment);
+    for (const payment of (paymentsByAmount.get(`${outstanding}`) ?? []).slice(0, 50)) addCandidate(payment);
     if (invoice.dueDate) {
       const due = Date.parse(`${invoice.dueDate}T00:00:00Z`);
       for (let offset = -7; offset <= 7; offset += 1) {
         const date = new Date(due + offset * 86400000).toISOString().slice(0, 10);
-        for (const payment of paymentsByDate.get(date) ?? []) addCandidate(payment);
+        for (const payment of (paymentsByDate.get(date) ?? []).slice(0, 50)) addCandidate(payment);
       }
     }
-    for (const payment of payments) {
-      if (candidatePool.size >= 50) break;
-      if (candidatePool.has(payment.id) || usedPayments.has(payment.id)) continue;
-      if ((paymentAllocated.get(payment.id) ?? 0) >= payment.amountMinor) continue;
-      if (nameScore(invoice.customerName, payment.payerName) >= 0.6) addCandidate(payment);
-      if (candidatePool.size >= 50) break;
+    for (const token of new Set(normalizeCompany(invoice.customerName).split(" ").filter(Boolean))) {
+      for (const payment of paymentsByToken.get(token) ?? []) addCandidate(payment);
     }
 
     type Scored = { payment: MatchPayment; score: number; signals: Record<string, unknown> };
@@ -303,8 +305,8 @@ export function planMatching(
           ruleReason:
             "Several payments are similar to this invoice. No single candidate is clearly strongest, so Ma'at leaves the choice to you.",
           signals: {
-            candidate_payment_ids: tied.map((entry) => entry.payment.paymentId),
-            candidates: tied.map((entry) => entry.signals),
+            candidate_payment_ids: tied.slice(0, 3).map((entry) => entry.payment.paymentId),
+            candidates: tied.slice(0, 3).map((entry) => entry.signals),
           },
         });
       } else {

@@ -30,6 +30,7 @@ export async function verifyPrivyAccessToken(
       issuer: "privy.io",
       audience: appId,
       algorithms: ["ES256"],
+      requiredClaims: ["sub", "exp"],
     });
     if (typeof payload.sub !== "string" || !payload.sub.startsWith("did:privy:")) return null;
     return {
@@ -54,6 +55,7 @@ export async function verifyPrivyIdentityToken(
       issuer: "privy.io",
       audience: appId,
       algorithms: ["ES256"],
+      requiredClaims: ["sub", "exp"],
     });
     if (typeof payload.sub !== "string" || !payload.sub.startsWith("did:privy:")) return null;
     let email: string | undefined;

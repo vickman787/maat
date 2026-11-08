@@ -19,6 +19,7 @@ corepack pnpm build
 echo "==> Copying source and .next build to ${MAAT_HOST}:${REMOTE_DIR}"
 rsync -az --delete \
   --exclude node_modules \
+  --exclude ".next-*" \
   --exclude data \
   --exclude .env.local \
   --exclude .env \
@@ -33,6 +34,7 @@ ssh "${MAAT_HOST}" "sudo -u maat bash -lc '
   cd ${REMOTE_DIR}
   corepack pnpm install --frozen-lockfile
   set -a; . /etc/maat/maat.env; set +a
+  corepack pnpm exec tsx scripts/backup.ts
   corepack pnpm exec tsx scripts/migrate.ts
 '"
 

@@ -7,7 +7,7 @@ import {
   FIXTURE_PAYMENT_MAPPING,
   invoicesCsv,
   paymentsCsv,
-} from "../lib/fixture";
+} from "./fixtures/canonical";
 
 export function makeDb(): Database.Database {
   return openDatabase(":memory:");

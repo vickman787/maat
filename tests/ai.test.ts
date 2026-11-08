@@ -40,6 +40,7 @@ const bundle: AiExceptionBundle = {
 type Mode = "valid" | "unknown-evidence" | "failure";
 let server: http.Server | null = null;
 let requests = 0;
+let lastRequest = "";
 
 async function startMock(mode: Mode): Promise<number> {
   requests = 0;
@@ -50,6 +51,7 @@ async function startMock(mode: Mode): Promise<number> {
       body += chunk;
     });
     req.on("end", () => {
+      lastRequest = body;
       if (mode === "failure") {
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "provider down" }));
@@ -111,7 +113,12 @@ describe("AI exception explanations", () => {
     expect(result.suggestedAction).toBe("confirm_partial");
     expect(result.provider).toBe("127.0.0.1");
     expect(result.model).toBe("test-model");
-    expect(result.promptVersion).toBe("maat-exception-v1");
+    expect(result.promptVersion).toBe("maat-exception-v2");
+    expect(lastRequest).toContain("$1,500.00");
+    expect(lastRequest).toContain("$1,000.00");
+    expect(lastRequest).toContain("$500.00");
+    expect(lastRequest).not.toContain("amount_minor");
+    expect(lastRequest).not.toContain("difference_minor");
     expect(requests).toBe(1);
   });
 

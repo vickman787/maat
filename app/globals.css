@@ -610,9 +610,12 @@ img {
 }
 
 .content {
-  padding: 1.8rem 2rem 3rem;
+  padding: 2rem clamp(1.5rem, 2.8vw, 3rem) 3rem;
   flex: 1;
   min-width: 0;
+  width: 100%;
+  max-width: 1600px;
+  margin-inline: auto;
 }
 
 .mobile-header {
@@ -720,7 +723,7 @@ img {
 .grid-2 {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: 1.2rem;
+  gap: 1.6rem;
   margin-bottom: 1.4rem;
 }
 
@@ -1390,7 +1393,7 @@ img {
 .review-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: 1.2rem;
+  gap: 1.75rem;
   align-items: start;
 }
 
@@ -1617,7 +1620,7 @@ img {
 .report-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: 1.3rem;
+  gap: 1.75rem;
   align-items: start;
 }
 
@@ -1792,9 +1795,9 @@ img {
 }
 
 .landing-nav {
-  max-width: 1180px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 1.4rem 1.5rem;
+  padding: 1.25rem 2.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1813,25 +1816,48 @@ img {
 
 .landing-nav-actions {
   display: flex;
-  gap: 0.6rem;
+  gap: 1.25rem;
   align-items: center;
 }
 
+.landing-signin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.5rem 0.2rem;
+  color: #415a69;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.landing-signin:hover {
+  color: var(--navy);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .hero {
-  max-width: 1180px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 4rem 1.5rem 2.5rem;
+  padding: 3rem 2.5rem 4rem;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-  gap: 4rem;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
+  gap: clamp(2rem, 4vw, 4rem);
   align-items: center;
 }
 
 .hero h1 {
-  font-size: clamp(2.6rem, 5.4vw, 4.2rem);
+  font-size: clamp(2.5rem, 4.2vw, 3.75rem);
   letter-spacing: -0.03em;
-  line-height: 1.24;
-  max-width: 14ch;
+  line-height: 1.1;
+  max-width: 19ch;
+  text-wrap: balance;
+}
+
+.hero-copy {
+  min-width: 0;
 }
 
 .hero h1 em {
@@ -1843,7 +1869,7 @@ img {
   font-size: 1rem;
   color: var(--muted);
   line-height: 1.75;
-  margin: 1.6rem 0 1.9rem;
+  margin: 1.35rem 0 1.5rem;
   max-width: 55ch;
 }
 
@@ -1866,7 +1892,7 @@ img {
   position: relative;
   background: var(--navy);
   border-radius: 14px;
-  padding: 2rem;
+  padding: clamp(1.5rem, 2.5vw, 2rem);
   color: #e7e8e6;
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -1890,8 +1916,8 @@ img {
 .hero-art h2 {
   font-family: var(--serif);
   font-weight: 400;
-  font-size: 1.55rem;
-  line-height: 1.42;
+  font-size: clamp(1.5rem, 2.2vw, 1.9rem);
+  line-height: 1.25;
   margin: 0.8rem 0 1.35rem;
 }
 
@@ -1908,6 +1934,42 @@ img {
   font-variant-numeric: tabular-nums;
 }
 
+.hero-workflow {
+  display: grid;
+  margin-top: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-workflow > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid #34485a;
+}
+
+.hero-workflow svg {
+  flex-shrink: 0;
+  color: #cfb579;
+  margin-top: 0.15rem;
+}
+
+.hero-workflow b {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.hero-workflow small {
+  color: #b6c2c9;
+  margin-top: 0.25rem;
+}
+
+#workflow {
+  scroll-margin-top: 1.5rem;
+}
+
 .hero-pill {
   display: inline-flex;
   align-items: center;
@@ -1921,15 +1983,15 @@ img {
 }
 
 .landing-section {
-  max-width: 1180px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: 3.5rem 2.5rem;
 }
 
 .workflow-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.1rem;
+  gap: 1.5rem;
 }
 
 .workflow-card {
@@ -1959,11 +2021,11 @@ img {
 .privacy-band {
   background: var(--navy);
   color: #dfe5e7;
-  padding: 3rem 1.5rem;
+  padding: 3.5rem 2.5rem;
 }
 
 .privacy-inner {
-  max-width: 1180px;
+  max-width: 1200px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -2004,9 +2066,9 @@ img {
 }
 
 .landing-footer {
-  max-width: 1180px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1.5rem 2.5rem;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -2282,6 +2344,14 @@ img {
   text-align: center;
 }
 
+@media (min-width: 901px) and (max-width: 1199px) {
+  .review-grid,
+  .report-grid,
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1100px) {
   .stat-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2320,7 +2390,22 @@ img {
   }
 
   .workflow-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .hero {
+    padding-top: 2rem;
+    gap: 2.5rem;
+  }
+
+  .hero h1 {
+    max-width: 22ch;
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+  }
+
+  .hero-art {
+    width: 100%;
   }
 
   .sidebar {
@@ -2432,18 +2517,76 @@ img {
 
   .landing-nav {
     padding: 1rem;
+    gap: 0.65rem;
   }
 
-  .landing-nav-actions .button.secondary {
+  .landing-nav .logo-word {
+    font-size: 1.5rem;
+  }
+
+  .landing-nav-actions {
+    gap: 0.55rem;
+  }
+
+  .landing-nav-actions .landing-signin {
+    font-size: 0.75rem;
+    padding-inline: 0.1rem;
+  }
+
+  .landing-nav-actions .button {
+    padding-inline: 0.65rem;
+    font-size: 0.72rem;
+  }
+
+  .landing-nav-actions .button svg {
     display: none;
   }
 
   .hero {
-    padding-top: 1.5rem;
+    padding: 1.75rem 1.25rem 2.5rem;
+    gap: 2rem;
   }
 
   .hero h1 {
-    font-size: 2.5rem;
+    font-size: clamp(2.2rem, 9vw, 3rem);
+    max-width: 20ch;
+  }
+
+  .hero-lede {
+    font-size: 0.94rem;
+    margin-block: 1.25rem;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .hero-actions .button {
+    width: 100%;
+  }
+
+  .hero-note {
+    align-items: flex-start;
+  }
+
+  .hero-note svg {
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .landing-section,
+  .privacy-band {
+    padding: 2.5rem 1.25rem;
+  }
+
+  .workflow-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-footer {
+    padding-inline: 1.25rem;
   }
 
   .auth-main {

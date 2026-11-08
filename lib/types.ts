@@ -1,6 +1,7 @@
 ﻿export type SessionKind = "user" | "demo";
 
 export type UserSession = {
+  privyAccessToken?: string;
   kind: "user";
   userId: string;
   workspaceId: string | null;

@@ -11,6 +11,7 @@ try {
 process.env.DATABASE_URL = "file:./data/e2e.db";
 process.env.UPLOAD_DIR = "./data/e2e-uploads";
 process.env.APP_URL = "http://localhost:3000";
+process.env.AI_API_KEY = ""; // Browser regression fixtures use deterministic evidence; live AI is verified separately.
 
 export default defineConfig({
   testDir: "./tests/e2e",

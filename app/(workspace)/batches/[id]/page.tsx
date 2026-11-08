@@ -20,7 +20,7 @@ import { ReviewFlag, StatusPill } from "@/components/StatusPill";
 
 export const dynamic = "force-dynamic";
 
-const FILTERS = ["all", "exact", "partial", "unpaid", "ambiguous", "unallocated"] as const;
+const FILTERS = ["all", "exact", "partial", "unpaid", "ambiguous", "settled", "unallocated"] as const;
 
 export default async function BatchPage({
   params,
@@ -77,6 +77,7 @@ export default async function BatchPage({
   const tabs = [
     { key: "all", label: "All invoices", count: summary.invoice_count },
     { key: "exact", label: "Exact", count: summary.exact_count },
+    { key: "settled", label: "Manually settled", count: overview.invoices.filter((invoice) => invoice.status === "settled").length },
     { key: "partial", label: "Partial", count: summary.partial_count },
     { key: "unpaid", label: "Unpaid", count: summary.unpaid_count },
     { key: "ambiguous", label: "Ambiguous", count: summary.ambiguous_count },

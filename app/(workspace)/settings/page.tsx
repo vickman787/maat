@@ -42,7 +42,7 @@ export default async function SettingsPage() {
               <h2>Workspace name</h2>
             </div>
           </div>
-          <BusinessNameForm initialName={ctx.workspace.name} disabled={ctx.workspace.isDemo} />
+          <BusinessNameForm initialName={ctx.workspace.name} disabled={false} />
         </section>
 
         <section className="panel">
@@ -59,22 +59,22 @@ export default async function SettingsPage() {
             </div>
             <div>
               <dt>Role</dt>
-              <dd>{ctx.workspace.isDemo ? "Demo visitor" : ctx.role === "owner" ? "Owner" : "Member"}</dd>
+              <dd>{ctx.role === "owner" ? "Owner" : "Member"}</dd>
             </div>
             <div>
               <dt>Email</dt>
-              <dd>{ctx.user?.email ?? (ctx.workspace.isDemo ? "Not applicable" : "Not shared by Privy identity token")}</dd>
+              <dd>{ctx.user?.email ?? "Not shared by Privy identity token"}</dd>
             </div>
             <div>
               <dt>Privy identity</dt>
               <dd className="hash">
-                {ctx.user?.privyDid ?? "Server-issued demo session — no personal identity"}
+                {ctx.user?.privyDid ?? "Not available"}
               </dd>
             </div>
           </div>
           <div className="separator" />
           <div className="row">
-            <LogoutButton demo={ctx.workspace.isDemo} />
+            <LogoutButton />
           </div>
           <p className="field-hint" style={{ marginTop: "0.6rem" }}>
             Signing out clears the local session cookie. The server never accepts a client-supplied user
@@ -147,12 +147,7 @@ export default async function SettingsPage() {
             <p>Deletion removes private CSV files and every linked record. It cannot be undone.</p>
           </div>
         </div>
-        {ctx.workspace.isDemo ? (
-          <div className="notice">
-            Demo data is cleared with <strong>Reset demo</strong> in the top banner. Deleting individual
-            demo batches is disabled.
-          </div>
-        ) : summaries.length === 0 ? (
+        {summaries.length === 0 ? (
           <p className="small muted">No batches to delete.</p>
         ) : (
           <div className="stack" style={{ gap: "0.7rem" }}>

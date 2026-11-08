@@ -3,6 +3,7 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import { databaseFile, uploadDir } from "../lib/config";
 
+async function main() {
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
 const backupRoot = path.resolve(process.cwd(), "data", "backups", stamp);
 fs.mkdirSync(backupRoot, { recursive: true });
@@ -21,3 +22,6 @@ if (fs.existsSync(uploadDir())) {
 }
 
 console.log("Copy the backup directory off the VM before schema-changing deployments.");
+
+}
+void main().catch(() => { console.error("Backup failed. Check database and storage access."); process.exitCode = 1; });

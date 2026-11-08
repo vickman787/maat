@@ -27,7 +27,11 @@ export function parseAmountToMinor(value: unknown, currency = "USD"): ParsedAmou
     return { ok: false, error: "Negative amounts and refunds are not supported in this batch." };
   }
   const decimals = currencyDecimals(currency);
-  const cleaned = original.replace(/^\$/, "").replace(/,/g, "").trim();
+  const unsigned = original.replace(/^\$/, "").trim();
+  if (unsigned.includes(",") && !/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(unsigned)) {
+    return { ok: false, error: "Amount has invalid thousands separators. Use 1,500.00 or 1500.00." };
+  }
+  const cleaned = unsigned.replace(/,/g, "");
   if (cleaned.startsWith("-") || cleaned.startsWith("+")) {
     return { ok: false, error: "Negative amounts and refunds are not supported in this batch." };
   }

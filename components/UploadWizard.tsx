@@ -6,7 +6,6 @@ import Papa from "papaparse";
 import {
   AlertTriangle,
   CheckCircle2,
-  Download,
   FileUp,
   LoaderCircle,
   RotateCcw,
@@ -272,8 +271,6 @@ export function UploadWizard() {
           inputRef={invoiceInput}
           onChoose={(file) => void loadFile(file, "invoices")}
           onRemove={() => removeFile("invoices")}
-          sampleHref="/samples/invoices-sample.csv"
-          sampleName="invoices-sample.csv"
         />
         <FileCard
           kind="payments"
@@ -283,8 +280,6 @@ export function UploadWizard() {
           inputRef={paymentInput}
           onChoose={(file) => void loadFile(file, "payments")}
           onRemove={() => removeFile("payments")}
-          sampleHref="/samples/payments-sample.csv"
-          sampleName="payments-sample.csv"
         />
       </div>
 
@@ -367,8 +362,6 @@ function FileCard({
   inputRef,
   onChoose,
   onRemove,
-  sampleHref,
-  sampleName,
 }: {
   kind: "invoices" | "payments";
   title: string;
@@ -377,8 +370,6 @@ function FileCard({
   inputRef: React.RefObject<HTMLInputElement | null>;
   onChoose: (file: File) => void;
   onRemove: () => void;
-  sampleHref: string;
-  sampleName: string;
 }) {
   const [dragging, setDragging] = useState(false);
   const id = `${kind}-file`;
@@ -470,9 +461,6 @@ function FileCard({
       )}
       <div className="file-meta">
         <span>CSV · up to 5 MB</span>
-        <a className="text-link" href={sampleHref} download={sampleName}>
-          <Download size={13} /> Download sample
-        </a>
       </div>
     </section>
   );

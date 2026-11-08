@@ -13,7 +13,6 @@ import {
   X,
   ChevronDown,
   LogOut,
-  RotateCcw,
   House,
 } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
@@ -56,7 +55,7 @@ function SidebarBody({
         <span className="avatar">{initials(workspace.name)}</span>
         <div>
           <b title={workspace.name}>{workspace.name}</b>
-          <small>{workspace.isDemo ? "Demo workspace" : "Finance workspace"}</small>
+          <small>{"Finance workspace"}</small>
         </div>
       </div>
       <div className="eyebrow">Workspace</div>
@@ -88,7 +87,7 @@ function SidebarBody({
           <div>
             <b title={user.email ?? user.label}>{user.email ?? user.label}</b>
             <small>
-              {workspace.isDemo ? "Demo visitor" : user.role === "owner" ? "Workspace owner" : "Workspace member"}
+              {user.role === "owner" ? "Workspace owner" : "Workspace member"}
             </small>
           </div>
         </div>
@@ -109,7 +108,6 @@ export function ShellChrome({
   const pathname = usePathname() || "";
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [demoError, setDemoError] = useState<string | null>(null);
   const { logout, authenticated } = usePrivy();
 
   useEffect(() => {
@@ -126,24 +124,7 @@ export function ShellChrome({
       // Clearing the server session below is the authoritative sign-out.
     }
     await fetch("/api/auth/logout", { method: "POST" });
-    window.location.assign(workspace.isDemo ? "/" : "/login");
-  }
-
-  async function handleResetDemo() {
-    setBusy(true);
-    setDemoError(null);
-    try {
-      const response = await fetch("/api/demo/reset", { method: "POST" });
-      if (response.ok) {
-        window.location.assign("/dashboard");
-        return;
-      }
-      const body = (await response.json()) as { error?: string };
-      setDemoError(body.error ?? "The demo could not be reset.");
-    } catch {
-      setDemoError("The demo could not be reset. Check your connection.");
-    }
-    setBusy(false);
+    window.location.assign("/login");
   }
 
   return (
@@ -171,12 +152,11 @@ export function ShellChrome({
         <div className="topbar">
           <div className="topbar-left">
             <span>Finance operations</span>
-            {workspace.isDemo && <span className="demo-badge">DEMO DATA</span>}
           </div>
           <div className="topbar-right">
             <div className="topbar-identity">
               <span className="avatar light">{initials(user.label)}</span>
-              <span>{workspace.isDemo ? "Demo visitor" : user.email ?? user.label}</span>
+              <span>{user.email ?? user.label}</span>
             </div>
             <details className="profile-menu">
               <summary className="icon-button" aria-label="Open profile menu">
@@ -194,34 +174,13 @@ export function ShellChrome({
                   <Settings size={15} /> Settings
                 </Link>
                 <button type="button" className="popover-button" onClick={handleLogout} disabled={busy}>
-                  <LogOut size={15} /> {busy ? "Signing out…" : workspace.isDemo ? "Exit demo" : "Sign out"}
+                  <LogOut size={15} /> {busy ? "Signing out…" : "Sign out"}
                 </button>
               </div>
             </details>
           </div>
         </div>
 
-        {workspace.isDemo && (
-          <div className="demo-strip">
-            <span>
-              This is an isolated demo workspace with fictional sample data.
-              {demoError && (
-                <strong role="alert" style={{ marginLeft: "0.6rem", color: "var(--danger)" }}>
-                  {demoError}
-                </strong>
-              )}
-            </span>
-            <div className="demo-strip-actions">
-              <button type="button" onClick={handleResetDemo} disabled={busy}>
-                <RotateCcw size={12} style={{ display: "inline", marginRight: 4 }} />
-                Reset demo
-              </button>
-              <button type="button" onClick={handleLogout} disabled={busy}>
-                Exit demo
-              </button>
-            </div>
-          </div>
-        )}
 
         <main className="content">{children}</main>
       </div>
@@ -251,7 +210,7 @@ export function ShellChrome({
               <House size={15} /> Public homepage
             </Link>
             <button type="button" className="popover-button" style={{ color: "#e7e8e6", marginTop: "0.5rem" }} onClick={handleLogout}>
-              <LogOut size={15} /> {workspace.isDemo ? "Exit demo" : "Sign out"}
+              <LogOut size={15} /> {"Sign out"}
             </button>
           </aside>
         </>

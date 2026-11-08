@@ -34,8 +34,8 @@ export default async function ReportsPage() {
           <FileBarChart size={30} aria-hidden="true" />
           <h2>No reports yet.</h2>
           <p>Reports become available as soon as a reconciliation batch exists.</p>
-          <Link href={ctx.workspace.isDemo ? "/dashboard" : "/batches/new"} className="button">
-            {ctx.workspace.isDemo ? "Open demo dashboard" : "Start a reconciliation"}
+          <Link href={"/batches/new"} className="button">
+            {"Start a reconciliation"}
           </Link>
         </div>
       ) : (

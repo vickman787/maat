@@ -7,6 +7,10 @@ Platform: Windows 11 x64, Node.js 24.15.0, pnpm 12.18.0, Next.js 15.5.29, Chrome
 This file records commands that were actually run and their results. Items that were not run are
 listed as not run.
 
+## Current remediation verification
+
+See [FIXES_AND_VERIFICATION.md](FIXES_AND_VERIFICATION.md) for the current 57-test suite, production build, browser reruns and deployment status. The original record below describes the earlier build.
+
 ## Automated checks
 
 | Command | Result |

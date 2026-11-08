@@ -1,3 +1,5 @@
+> Current release: the owner requested an account-only app. The public demo, automatic samples and guest demo routes have been removed. Real Vultr inference and production email sign-in are verified. See README.md and FIXES_AND_VERIFICATION.md for current behavior; older demo-related descriptions below are historical.
+
 # Architecture
 
 ## Deployment shape

@@ -1,6 +1,6 @@
+import { verifyPrivyAccessToken } from "./privy";
 import { getDb } from "./db";
 import { readSession } from "./session";
-import { demoTtlHours } from "./config";
 import type { Session } from "./types";
 
 export type AuthUser = {
@@ -37,35 +37,19 @@ export async function getAuthContext(): Promise<AuthContext | null> {
   if (!session) return null;
   const db = getDb();
 
-  if (session.kind === "demo") {
-    const cutoff = new Date(Date.now() - demoTtlHours() * 3600 * 1000).toISOString();
-    const demo = db
-      .prepare(
-        `SELECT ds.id, w.id AS workspace_id, w.name, w.is_demo
-         FROM demo_sessions ds
-         JOIN workspaces w ON w.id = ds.workspace_id
-         WHERE ds.id = ? AND ds.workspace_id = ? AND w.is_demo = 1 AND ds.created_at >= ?`,
-      )
-      .get(session.demoSessionId, session.workspaceId, cutoff) as
-      | { id: string; workspace_id: string; name: string; is_demo: number }
-      | undefined;
-    if (!demo) return null;
-    db.prepare("UPDATE demo_sessions SET last_seen_at = ? WHERE id = ?").run(new Date().toISOString(), demo.id);
-    return {
-      session,
-      user: null,
-      workspace: { id: demo.workspace_id, name: demo.name, isDemo: true },
-      role: "demo",
-      actorLabel: "Demo visitor",
-    };
-  }
+  if (session.kind !== "user") return null;
+
+  const currentIdentity = session.privyAccessToken
+    ? await verifyPrivyAccessToken(session.privyAccessToken)
+    : null;
+  if (session.privyAccessToken && !currentIdentity) return null;
 
   const user = db
     .prepare("SELECT id, privy_did, email, display_name FROM users WHERE id = ?")
     .get(session.userId) as
     | { id: string; privy_did: string; email: string | null; display_name: string | null }
     | undefined;
-  if (!user) return null;
+  if (!user || (currentIdentity && currentIdentity.did !== user.privy_did)) return null;
 
   const authUser: AuthUser = {
     id: user.id,
@@ -89,7 +73,7 @@ export async function getAuthContext(): Promise<AuthContext | null> {
       `SELECT m.role, w.id, w.name, w.is_demo
        FROM memberships m
        JOIN workspaces w ON w.id = m.workspace_id
-       WHERE m.user_id = ? AND m.workspace_id = ?`,
+       WHERE m.user_id = ? AND m.workspace_id = ? AND w.is_demo = 0`,
     )
     .get(user.id, session.workspaceId) as
     | { role: string; id: string; name: string; is_demo: number }

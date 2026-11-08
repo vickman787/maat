@@ -8,9 +8,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   try {
     assertSameOrigin(request);
     const ctx = await requireWorkspaceContext();
-    if (ctx.workspace.isDemo) {
-      return jsonError("Use Reset demo to clear sample data. Demo batches cannot be deleted individually.", 403);
-    }
     const { id } = await params;
     const db = getDb();
     const batch = db

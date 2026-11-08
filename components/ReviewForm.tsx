@@ -22,6 +22,9 @@ type PaymentOption = {
   remainingMinor: number;
   reference: string | null;
   paidAt: string | null;
+  sourceFile: string;
+  sourceRow: number;
+  originalValues: Record<string, string>;
 };
 
 type AllocationInfo = {
@@ -67,6 +70,7 @@ export function ReviewForm({
         ? "manual"
         : "unresolved",
   );
+  const [paymentSearch, setPaymentSearch] = useState("");
   const [paymentRowId, setPaymentRowId] = useState(
     suggestedPayment?.id ?? eligible[0]?.id ?? "",
   );
@@ -92,6 +96,12 @@ export function ReviewForm({
         outstandingMinor,
       )
     : 0;
+
+  const selectedPayment = eligible.find((payment) => payment.id === paymentRowId);
+  const visiblePayments = eligible.filter((payment) =>
+    [payment.paymentId, payment.payerName, payment.reference ?? ""].join(" ").toLowerCase().includes(paymentSearch.toLowerCase()),
+  ).slice(0, 100);
+  if (selectedPayment && !visiblePayments.some((payment) => payment.id === selectedPayment.id)) visiblePayments.unshift(selectedPayment);
 
   function selectPayment(id: string) {
     setPaymentRowId(id);
@@ -291,6 +301,10 @@ export function ReviewForm({
               <small>Only payments with a remaining balance are available.</small>
               {action === "manual" && (
                 <span className="stack" style={{ marginTop: "0.6rem", gap: "0.5rem" }}>
+                  <input className="input" type="search" aria-label="Search eligible payments"
+                    placeholder="Search all eligible payments" value={paymentSearch}
+                    onChange={(event) => setPaymentSearch(event.target.value)} />
+                  <span className="field-hint">Search across {eligible.length} eligible payments. Up to 100 results shown.</span>
                   <select
                     className="select"
                     value={paymentRowId}
@@ -298,13 +312,21 @@ export function ReviewForm({
                     aria-label="Eligible payment"
                   >
                     <option value="">Select a payment…</option>
-                    {eligible.map((payment) => (
+                    {visiblePayments.map((payment) => (
                       <option key={payment.id} value={payment.id}>
                         {payment.paymentId} · {payment.payerName} ·{" "}
                         {formatMoney(payment.remainingMinor, payment.currency)} available
                       </option>
                     ))}
                   </select>
+                  {selectedPayment && <span className="notice" style={{ display: "block" }}>
+                    <b>Selected payment evidence: {selectedPayment.paymentId}</b><br />
+                    {selectedPayment.sourceFile} · row {selectedPayment.sourceRow}<br />
+                    Reference: {selectedPayment.reference ?? "None"} · Paid: {selectedPayment.paidAt ?? "Not supplied"}
+                    {Object.entries(selectedPayment.originalValues).map(([column, value]) => (
+                      <span key={column} style={{ display: "block", whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}><b>{column}:</b> {value}</span>
+                    ))}
+                  </span>}
                   <span className="row">
                     <label htmlFor="allocation-amount" className="field-label" style={{ margin: 0 }}>
                       Allocation amount ({currency})

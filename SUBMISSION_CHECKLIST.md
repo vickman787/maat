@@ -1,64 +1,24 @@
 # Submission checklist
 
-Check the live LabLab form for current deadlines, eligibility, slide/video limits, and licensing.
-Do not infer a closing hour from a date.
+## Verified product
 
-## Product
+- [x] Deterministic matching, human review, source evidence, transactional allocation, reversal and CSV exports.
+- [x] 57 unit/integration checks, including separate-process concurrent confirmations.
+- [x] Real Vultr inference verified locally and on the production server; API secrets stay outside Git.
+- [x] Desktop/mobile layout checks at 320, 390, 768, 1024, 1440 and 1920 pixels passed before the final account-only release; final release acceptance is recorded in FIXES_AND_VERIFICATION.md.
+- [x] Public guest demo and automatic sample seeding removed at the owner's request. Regression fixtures remain under tests only.
+- [x] Guests sign in; returning members open their dashboard. New workspaces start empty.
 
-- [x] Working end-to-end reconciliation workflow implemented
-- [x] Canonical fixture and financial invariants verified
-- [x] Privy email-OTP UI and server-side JWKS verification implemented
-- [x] Workspace isolation, cross-workspace denial tested
-- [x] Isolated demo workspace, reset, rate limit, cleanup
-- [x] Durable jobs, retry/recovery, idempotent allocation
-- [x] Real AI explanation architecture with strict validation and labelled fallback
-- [x] Human review, notes, undo reversal, append-only audit history
-- [x] Three CSVs and print-friendly report
-- [x] Responsive UI reviewed at 1440 / 768 / 390 with actual screenshots
-- [x] Unit/integration tests and Playwright browser walkthroughs
+## Release and submission
 
-## Deliverables
+- [x] Source repository: https://github.com/vickman787/maat
+- [x] HTTPS app: https://199-247-1-174.sslip.io
+- [x] Final account-only release deployed and checked; six final browser checks and public smoke checks passed.
+- [ ] Finished source changes committed and pushed to GitHub.
+- [x] Real production email-code sign-in and workspace setup completed; authenticated dashboard verified.
+- [x] 2:30 video recording plan prepared in DEMO_VIDEO_PLAN.md.
+- [ ] Final recorded video reviewed and exported.
+- [ ] Owner selects a license if the competition requires one; no license has been chosen on their behalf.
+- [ ] LabLab submission completed by the owner or with their explicit submission instruction.
 
-- [x] Source code (this `maat/` directory)
-- [x] `pnpm-lock.yaml`
-- [x] Migrations and migration runner
-- [x] Downloadable sample CSVs
-- [x] `.env.example`
-- [x] README
-- [x] architecture diagram/explanation (`ARCHITECTURE.md`)
-- [x] known limitations (`KNOWN_LIMITATIONS.md`)
-- [x] demo script (`DEMO_SCRIPT.md`)
-- [x] verification record (`VERIFICATION.md`)
-- [x] Vultr systemd/Caddy/deployment preparation (`DEPLOYMENT.md`, `deploy/`)
-- [x] Public repository: https://github.com/vickman787/maat
-- [x] Public demo URL: https://199-247-1-174.sslip.io (HTTPS verified; temporary sslip.io hostname)
-- [ ] Recorded demo video (script ready; **not recorded**)
-- [ ] LabLab submission (not made)
-- [ ] License decision (no license file added; owner to choose)
-
-## Remaining credentials and access
-
-1. **Vultr VM**: deployment access is working with the dedicated key; app and worker are active.
-   Remaining: add the live HTTPS origin in Privy and perform one production login.
-2. **DNS / hostname**: an owner-controlled hostname with an A record to the VM, for HTTPS.
-3. **Privy dashboard**: Email login is working on localhost and wallets are off. Still add the exact
-   production HTTPS origin, then test login there. Optionally enable identity tokens for email display.
-4. **AI provider (optional)**: working Vultr Serverless Inference access, API key, and a currently
-   available model ID. Until supplied, AI explanations remain plainly unconfigured/rule-based.
-5. **Mailbox**: a mailbox you control for the real Privy OTP acceptance test.
-
-## Honest claims for submission
-
-Use:
-
-- “Deterministic reconciliation, human review, audit history, and exports are implemented and tested.”
-- “Privy token verification is implemented; email delivery must be configured and tested on the final
-  origin.”
-- “The AI explanation layer is implemented with a labelled fallback; a real provider run must be
-  captured before claiming it is live.”
-- “Deployment configuration is prepared; the public URL will be added only after a verified deploy.”
-
-Do not use:
-
-- “Fully deployed / live AI / certified / guaranteed matching accuracy” unless actually verified.
-- Any invented provider response, financial total, screenshot, or public URL.
+Use the live competition form to confirm its deadline, required fields, video limit and licensing rules. The sslip.io hostname is a temporary public endpoint. No regulatory certification or guaranteed matching accuracy is claimed.

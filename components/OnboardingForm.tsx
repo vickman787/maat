@@ -54,7 +54,7 @@ export function OnboardingForm({
           className="input"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="e.g. Atlas Studio"
+          placeholder="Your business name"
           maxLength={120}
           required
           autoFocus

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useIdentityToken, usePrivy } from "@privy-io/react-auth";
 import { ArrowRight, LoaderCircle, Mail, ShieldCheck } from "lucide-react";
-import { DemoButton } from "./DemoButton";
 
 export function LoginPanel({ nextPath = "/dashboard" }: { nextPath?: string }) {
   const router = useRouter();
@@ -117,11 +116,6 @@ export function LoginPanel({ nextPath = "/dashboard" }: { nextPath?: string }) {
         </div>
       </div>
 
-      <div className="separator" />
-      <p className="small muted" style={{ marginBottom: "0.6rem" }}>
-        Just looking? Open the isolated demo workspace—no account required.
-      </p>
-      <DemoButton className="button secondary wide" label="Explore demo" />
       <p className="small muted" style={{ marginTop: "1rem" }}>
         Signing in? After verification you&apos;ll name your business once. Ma&apos;at creates a private
         workspace; repeated sign-ins never create duplicates.

@@ -15,7 +15,6 @@ import { getBatchOverview, listBatchSummaries } from "@/lib/batches";
 import { getDb } from "@/lib/db";
 import { formatMoney, formatMoneyShort } from "@/lib/money";
 import { BatchStatusPill, StatusPill } from "@/components/StatusPill";
-import { DemoLinkNote } from "@/components/DemoLinkNote";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard" };
@@ -42,28 +41,21 @@ export default async function DashboardPage() {
             <h1>Everything in balance.</h1>
             <p>A clear view of your invoices, payments, and the exceptions that need you.</p>
           </div>
-          {!ctx.workspace.isDemo && (
-            <div className="page-actions">
+                      <div className="page-actions">
               <Link href="/batches/new" className="button">
                 <Plus size={15} /> New reconciliation
               </Link>
             </div>
-          )}
         </div>
         <div className="empty-state">
           <Sparkles size={30} aria-hidden="true" />
           <h2>No reconciliations yet.</h2>
           <p>
-            Upload an invoices CSV and a payments CSV to begin. You can also start with the downloadable
-            sample files in the upload screen.
+            Upload your invoices CSV and payments CSV to begin. Your dashboard will show only the files you import.
           </p>
-          {ctx.workspace.isDemo ? (
-            <DemoLinkNote />
-          ) : (
             <Link href="/batches/new" className="button">
               <Upload size={15} /> Upload source files
             </Link>
-          )}
         </div>
       </>
     );
@@ -109,13 +101,11 @@ export default async function DashboardPage() {
           <h1>Everything in balance.</h1>
           <p>A clear view of your invoices, payments, and the exceptions that need you.</p>
         </div>
-        {!ctx.workspace.isDemo && (
-          <div className="page-actions">
+                  <div className="page-actions">
             <Link href="/batches/new" className="button">
               <Plus size={15} /> New reconciliation
             </Link>
           </div>
-        )}
       </div>
 
       {(latest.status === "queued" || latest.status === "processing") && (
@@ -177,7 +167,7 @@ export default async function DashboardPage() {
           </div>
           <div className="progress-label">
             <b>
-              {latest.exact_count} invoices fully matched
+              {overview.invoices.filter((invoice) => invoice.outstandingMinor === 0).length} invoices fully matched
             </b>
             <span>{latest.needs_review_count} need review</span>
           </div>

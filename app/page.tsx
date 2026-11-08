@@ -7,9 +7,9 @@ import {
   ScanLine,
   ShieldCheck,
   Sparkles,
+  Upload,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { DemoButton } from "@/components/DemoButton";
 import { getAuthContext } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -25,79 +25,54 @@ export default async function LandingPage() {
         <nav className="landing-nav-actions" aria-label="Account">
           {openHref ? (
             <Link href={openHref} className="button">
-              Open workspace <ArrowRight size={15} />
+              Open dashboard <ArrowRight size={15} />
             </Link>
           ) : (
-            <>
-              <Link href="/login?next=%2Fdashboard" className="button secondary">
-                Sign in
-              </Link>
-              <Link href="/login?next=%2Fbatches%2Fnew" className="button">
-                Get started <ArrowRight size={15} />
-              </Link>
-            </>
+            <Link href="/login?next=%2Fdashboard" className="button">Sign in <ArrowRight size={15} /></Link>
           )}
         </nav>
       </header>
 
       <section className="hero">
-        <div>
+        <div className="hero-copy">
           <div className="eyebrow">Reconciliation, with evidence</div>
           <h1>
             Know what&apos;s paid, what&apos;s missing, and <em>why.</em>
           </h1>
           <p className="hero-lede">
-            Ma&apos;at compares your invoice and payment CSVs, matches the clear cases, and puts every
-            exception in front of a human with the original rows attached. No black-box totals.
+            Match invoice and payment CSVs. Review the exceptions with the original rows attached,
+            then export a clear, traceable report.
           </p>
           <div className="hero-actions">
             {openHref ? (
               <Link href={openHref} className="button gold">
-                Open workspace <ArrowRight size={15} />
+                Open dashboard <ArrowRight size={15} />
               </Link>
             ) : (
-              <Link href="/login?next=%2Fbatches%2Fnew" className="button gold">
-                Get started <ArrowRight size={15} />
+              <Link href="/login?next=%2Fdashboard" className="button gold">
+                Sign in <ArrowRight size={15} />
               </Link>
             )}
-            <DemoButton className="button secondary" label="Explore demo" />
+            <Link href="#workflow" className="button secondary">How it works <ArrowRight size={15} /></Link>
           </div>
           <p className="hero-note">
             <LockKeyhole size={13} aria-hidden="true" /> Email one-time sign-in. No password, no wallet.
           </p>
         </div>
 
-        <div className="hero-art" aria-label="Illustrative reconciliation summary">
-          <div className="mini-eyebrow">NOVEMBER CLIENT PAYMENTS · USD</div>
-          <h2>Everything in balance—except what needs you.</h2>
-          <span className="hero-pill">
-            <CheckCircle2 size={12} /> 9 exact matches
-          </span>
-          <div style={{ marginTop: "1rem" }}>
-            <div className="hero-metric">
-              <span>Invoiced</span>
-              <b>$18,000.00</b>
-            </div>
-            <div className="hero-metric">
-              <span>Imported payments</span>
-              <b>$16,500.00</b>
-            </div>
-            <div className="hero-metric">
-              <span>Confirmed allocations</span>
-              <b>$13,500.00</b>
-            </div>
-            <div className="hero-metric">
-              <span>Needs a human</span>
-              <b style={{ color: "#e5cf9d" }}>3 invoices</b>
-            </div>
+        <div className="hero-art" aria-label="Reconciliation workflow">
+          <div className="mini-eyebrow">YOUR FILES · YOUR WORKSPACE</div>
+          <h2>Two files. One clear record.</h2>
+          <div className="hero-workflow">
+            <div><Upload size={20} /><span><b>Import your CSVs</b><small>Invoices and payment records, stored privately.</small></span></div>
+            <div><ScanLine size={20} /><span><b>Match the clear cases</b><small>Compare references, currencies and amounts.</small></span></div>
+            <div><FileSearch size={20} /><span><b>Review with evidence</b><small>Original rows and AI explanations alongside your decision.</small></span></div>
+            <div><CheckCircle2 size={20} /><span><b>Export a traceable report</b><small>Keep unresolved items and the review history visible.</small></span></div>
           </div>
-          <p style={{ marginTop: "1rem", fontSize: "0.68rem", color: "#a7b2bc" }}>
-            Illustrative canonical sample. Source rows stay unchanged.
-          </p>
         </div>
       </section>
 
-      <section className="landing-section" aria-labelledby="workflow-heading">
+      <section id="workflow" className="landing-section" aria-labelledby="workflow-heading">
         <div className="eyebrow">Three calm steps</div>
         <h2 id="workflow-heading" style={{ fontFamily: "var(--serif)", fontWeight: 400, fontSize: "1.9rem", marginBottom: "0.4rem" }}>
           From two CSVs to a defensible close.
@@ -157,16 +132,15 @@ export default async function LandingPage() {
       </section>
 
       <section className="landing-section" style={{ textAlign: "center" }}>
-        <h2 style={{ fontFamily: "var(--serif)", fontWeight: 400, fontSize: "2rem" }}>Start with the sample, or your own two files.</h2>
+        <h2 style={{ fontFamily: "var(--serif)", fontWeight: 400, fontSize: "2rem" }}>Start with your own two files.</h2>
         <p className="muted" style={{ margin: "0.6rem auto 1.2rem", maxWidth: "52ch", fontSize: "0.85rem" }}>
-          The demo is an isolated, disposable workspace. Personal uploads stay disabled there; reset it
-          any time without affecting anyone else.
+          Your workspace starts empty. Upload your invoices and payment records to see your own
+          matches, exceptions and reports.
         </p>
         <div className="row" style={{ justifyContent: "center" }}>
-          <Link href="/login?next=%2Fbatches%2Fnew" className="button">
-            Start with email <ArrowRight size={15} />
+          <Link href={openHref ?? "/login?next=%2Fdashboard"} className="button">
+            {openHref ? "Open dashboard" : "Sign in"} <ArrowRight size={15} />
           </Link>
-          <DemoButton className="button secondary" />
         </div>
       </section>
 

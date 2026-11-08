@@ -29,9 +29,10 @@ export async function POST(request: Request) {
     });
     return attachSession(response, {
       kind: "user",
+      privyAccessToken: token,
       userId: account.userId,
       workspaceId: account.workspaceId,
-      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      exp: verified.expiration ?? Math.floor(Date.now() / 1000) + 60 * 60,
     });
   } catch (error) {
     return handleApiError(error);

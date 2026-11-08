@@ -17,7 +17,7 @@ export default async function LoginPage({
   const query = await searchParams;
   const nextPath = safePostAuthPath(query.next);
   const ctx = await getAuthContext();
-  if (ctx?.workspace) redirect(nextPath);
+  if (ctx?.workspace && !ctx.workspace.isDemo) redirect(nextPath);
   if (ctx?.user) redirect(`/onboarding?next=${encodeURIComponent(nextPath)}`);
 
   return (

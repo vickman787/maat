@@ -7,9 +7,6 @@ export async function PATCH(request: Request) {
   try {
     assertSameOrigin(request);
     const ctx = await requireWorkspaceContext();
-    if (ctx.workspace.isDemo) {
-      return jsonError("The demo workspace name is fixed. Create a personal workspace to use Settings.", 403);
-    }
     if (ctx.role !== "owner") return jsonError("Only the workspace owner can change the business name.", 403);
     const body = await readJsonBody<{ businessName?: string }>(request);
     const name = typeof body.businessName === "string" ? body.businessName.trim() : "";

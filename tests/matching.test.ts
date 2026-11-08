@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { planMatching, type MatchInvoice, type MatchPayment } from "../lib/matching";
-import { FIXTURE_INVOICES, FIXTURE_PAYMENTS } from "../lib/fixture";
+import { FIXTURE_INVOICES, FIXTURE_PAYMENTS } from "./fixtures/canonical";
 
 function invoices(): MatchInvoice[] {
   return FIXTURE_INVOICES.map((row, index) => ({

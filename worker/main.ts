@@ -1,21 +1,8 @@
 import { openDatabase } from "../lib/db";
 import { processQueuedJob, recoverInterruptedJobs } from "../lib/jobs";
-import { cleanupExpiredDemos } from "../lib/demo";
 
 const db = openDatabase();
-const recovered = recoverInterruptedJobs(db);
-const expired = cleanupExpiredDemos(db);
-if (expired > 0) {
-  console.log(`[maat-worker] removed ${expired} expired demo workspace(s)`);
-}
-setInterval(() => {
-  try {
-    const removed = cleanupExpiredDemos(db);
-    if (removed > 0) console.log(`[maat-worker] removed ${removed} expired demo workspace(s)`);
-  } catch (error) {
-    console.error("[maat-worker] demo cleanup failed:", error instanceof Error ? error.message.slice(0, 120) : "unknown");
-  }
-}, 60 * 60 * 1000);
+const recovered = recoverInterruptedJobs(db, true);
 if (recovered > 0) {
   console.log(`[maat-worker] recovered ${recovered} interrupted job(s)`);
 }

@@ -1,14 +1,14 @@
 import type Database from "better-sqlite3";
-import { demoTtlHours } from "./config";
-import { newId, nowIso } from "./db";
+import { demoTtlHours } from "../../lib/config";
+import { newId, nowIso } from "../../lib/db";
 import {
   FIXTURE_INVOICE_MAPPING,
   FIXTURE_PAYMENT_MAPPING,
   invoicesCsv,
   paymentsCsv,
-} from "./fixture";
-import { importBatch } from "./importer";
-import { deletePrivateFile } from "./storage";
+} from "./canonical";
+import { importBatch } from "../../lib/importer";
+import { deletePrivateFile } from "../../lib/storage";
 
 const DEMO_BATCH_NAME = "November client payments";
 

@@ -80,8 +80,7 @@ export default async function ReviewPage({
   const outstandingAfter = Math.max(0, invoice.outstandingMinor - confirmAmount);
 
   const eligiblePayments = payments
-    .filter((payment) => payment.remainingMinor > 0)
-    .slice(0, 500)
+    .filter((payment) => payment.remainingMinor > 0 && payment.allocatedMinor === 0)
     .map((payment) => ({
       id: payment.id,
       paymentId: payment.paymentId,
@@ -90,6 +89,9 @@ export default async function ReviewPage({
       remainingMinor: payment.remainingMinor,
       reference: payment.reference,
       paidAt: payment.paidAt,
+      sourceFile: payment.sourceFile,
+      sourceRow: payment.sourceRow,
+      originalValues: payment.originalValues,
     }));
 
   return (
@@ -116,6 +118,12 @@ export default async function ReviewPage({
         </div>
       </div>
       <Stepper current={2} />
+      <div className="row" style={{ flexWrap: "wrap", marginBottom: "1rem" }}>
+        {overview.files.map((file) => <a className="text-link" key={file.id}
+          href={`/api/batches/${id}/files/${file.id}`} download>
+          Download original {file.originalFilename}
+        </a>)}
+      </div>
 
       <div className="review-grid">
         <div className="stack">
@@ -143,7 +151,7 @@ export default async function ReviewPage({
               <dd>{invoice.invoiceId}</dd>
               <dt>Due date</dt>
               <dd>{formatDate(invoice.dueDate)}</dd>
-              <dt>Original source amount</dt>
+              <dt>Normalized amount</dt>
               <dd>{formatMoney(invoice.amountMinor, invoice.currency)} {invoice.currency}</dd>
               <dt>Confirmed allocated</dt>
               <dd>{formatMoney(invoice.allocatedMinor, invoice.currency)}</dd>
@@ -152,6 +160,12 @@ export default async function ReviewPage({
                 {formatMoney(invoice.outstandingMinor, invoice.currency)}
               </dd>
             </dl>
+            <details style={{ marginTop: "1rem" }}>
+              <summary>Original invoice CSV row</summary>
+              <dl className="facts">{Object.entries(invoice.originalValues).map(([column, value]) => (
+                <div key={column}><dt>{column}</dt><dd style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{value}</dd></div>
+              ))}</dl>
+            </details>
             <div className="review-flag" style={{ marginTop: "0.6rem" }}>
               <ReviewFlag state={invoice.reviewState} />
             </div>
@@ -182,6 +196,12 @@ export default async function ReviewPage({
                   <dt>Remaining on payment</dt>
                   <dd>{formatMoney(candidatePayment.remainingMinor, candidatePayment.currency)}</dd>
                 </dl>
+                <details style={{ marginTop: "1rem" }}>
+                  <summary>Original candidate payment CSV row</summary>
+                  <dl className="facts">{Object.entries(candidatePayment.originalValues).map(([column, value]) => (
+                    <div key={column}><dt>{column}</dt><dd style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{value}</dd></div>
+                  ))}</dl>
+                </details>
                 <div className="difference-line">
                   <span>Outstanding if assigned</span>
                   <strong>{formatMoney(outstandingAfter, invoice.currency)}</strong>

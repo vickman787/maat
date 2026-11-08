@@ -20,14 +20,14 @@ function b64url(input: Buffer | string): string {
 }
 
 export type SignableSession =
-  | { kind: "user"; userId: string; workspaceId: string | null }
+  | { kind: "user"; userId: string; workspaceId: string | null; privyAccessToken?: string }
   | { kind: "demo"; workspaceId: string; demoSessionId: string };
 
 export function signSession(payload: SignableSession, ttlSeconds?: number): string {
   const exp =
     Math.floor(Date.now() / 1000) +
     (ttlSeconds ?? (payload.kind === "demo" ? DEMO_TTL_SECONDS : SESSION_TTL_SECONDS));
-  const body = b64url(JSON.stringify({ ...payload, exp }));
+  const body = b64url(JSON.stringify({ ...payload, exp, authVersion: payload.kind === "user" ? 2 : undefined }));
   const sig = crypto.createHmac("sha256", sessionSecret()).update(body).digest("base64url");
   return `${body}.${sig}`;
 }
@@ -43,11 +43,11 @@ export function verifySessionToken(token: string | undefined | null): Session | 
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
   try {
     const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as Session;
-    if (!payload || typeof payload.exp !== "number" || payload.exp < Math.floor(Date.now() / 1000)) {
+    if (!payload || typeof payload.exp !== "number" || payload.exp <= Math.floor(Date.now() / 1000)) {
       return null;
     }
     if (payload.kind === "user") {
-      if (!payload.userId) return null;
+      if (!payload.userId || !("authVersion" in payload) || payload.authVersion !== 2) return null;
       return payload;
     }
     if (payload.kind === "demo") {
