@@ -117,7 +117,9 @@ Verified over HTTPS at **https://199-247-1-174.sslip.io**:
 - Caddy obtained a Let's Encrypt certificate and both ports 80/443 are listening.
 
 The hostname is a free `sslip.io` pointer, not an owner-controlled custom domain. No custom DNS was
-configured. `APP_URL` is set to the HTTPS origin so session cookies are Secure.
+configured. `APP_URL` is set to the HTTPS origin so session cookies are Secure. The VM build ran out
+of memory; the successful local `.next` production build was uploaded while Linux dependencies (incl.
+`better-sqlite3`) were installed on the VM.
 
 ## Not verified here
 

@@ -1,7 +1,6 @@
-﻿#!/usr/bin/env bash
-# Prepare and deploy Ma'at to an already-authorized Vultr VM.
-# This script does not run from the build environment without MAAT_HOST and explicit authorization.
-# Review it before use. It never copies .env.local or the local data directory.
+#!/usr/bin/env bash
+# Build locally, then deploy the Next.js build to an already-authorized Vultr VM.
+# Requires MAAT_HOST and explicit deployment authorization. Review before use.
 set -euo pipefail
 
 : "${MAAT_HOST:?Set MAAT_HOST to the authorized SSH target, e.g. maat@203.0.113.10}"
@@ -9,10 +8,17 @@ REMOTE_DIR="${REMOTE_DIR:-/opt/maat}"
 SERVICE_WEB="${SERVICE_WEB:-maat-web}"
 SERVICE_WORKER="${SERVICE_WORKER:-maat-worker}"
 
-echo "==> Copying application to ${MAAT_HOST}:${REMOTE_DIR}"
+# NEXT_PUBLIC_PRIVY_APP_ID is compiled into the browser bundle. Keep this public ID
+# available during the local production build; all secrets remain on the VM.
+export NEXT_PUBLIC_PRIVY_APP_ID="${NEXT_PUBLIC_PRIVY_APP_ID:-cmw7s2nj6011d0hl53g3sde60}"
+
+echo "==> Installing local dependencies and building production assets"
+corepack pnpm install --frozen-lockfile
+corepack pnpm build
+
+echo "==> Copying source and .next build to ${MAAT_HOST}:${REMOTE_DIR}"
 rsync -az --delete \
   --exclude node_modules \
-  --exclude .next \
   --exclude data \
   --exclude .env.local \
   --exclude .env \
@@ -21,13 +27,12 @@ rsync -az --delete \
   --exclude playwright-report \
   ./ "${MAAT_HOST}:${REMOTE_DIR}/"
 
-echo "==> Installing, building, migrating"
+echo "==> Installing Linux dependencies and applying migrations"
 ssh "${MAAT_HOST}" "sudo -u maat bash -lc '
   set -euo pipefail
   cd ${REMOTE_DIR}
   corepack pnpm install --frozen-lockfile
   set -a; . /etc/maat/maat.env; set +a
-  corepack pnpm exec next build
   corepack pnpm exec tsx scripts/migrate.ts
 '"
 
@@ -38,4 +43,3 @@ echo "==> Health check (requires APP_URL in /etc/maat/maat.env)"
 ssh "${MAAT_HOST}" "set -a; . /etc/maat/maat.env; set +a; curl -fsS \"\${APP_URL}/api/health\""
 
 echo "Deployment commands completed. Verify the public workflow manually before marking it complete."
-

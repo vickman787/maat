@@ -1820,16 +1820,17 @@ img {
 .hero {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 2rem;
+  padding: 4rem 1.5rem 2.5rem;
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-  gap: 3.5rem;
+  gap: 4rem;
   align-items: center;
 }
 
 .hero h1 {
   font-size: clamp(2.6rem, 5.4vw, 4.2rem);
-  letter-spacing: -0.045em;
+  letter-spacing: -0.03em;
+  line-height: 1.24;
   max-width: 14ch;
 }
 
@@ -1841,7 +1842,8 @@ img {
 .hero-lede {
   font-size: 1rem;
   color: var(--muted);
-  margin: 1.2rem 0 1.6rem;
+  line-height: 1.75;
+  margin: 1.6rem 0 1.9rem;
   max-width: 55ch;
 }
 
@@ -1864,7 +1866,7 @@ img {
   position: relative;
   background: var(--navy);
   border-radius: 14px;
-  padding: 1.5rem;
+  padding: 2rem;
   color: #e7e8e6;
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -1889,7 +1891,8 @@ img {
   font-family: var(--serif);
   font-weight: 400;
   font-size: 1.55rem;
-  margin: 0.6rem 0 1.1rem;
+  line-height: 1.42;
+  margin: 0.8rem 0 1.35rem;
 }
 
 .hero-metric {

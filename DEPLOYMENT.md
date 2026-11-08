@@ -109,7 +109,21 @@ AI_MODEL=
 
 ## 5. Install, build, migrate
 
-Run as the `maat` user with the production env available (for `pnpm migrate`):
+This VM has 1 GB RAM. A direct `next build` attempt on the VM was killed by the memory limit, so the
+verified deployment builds locally/CI and transfers the `.next` output. The current Windows-built
+Next.js artifacts were successfully started on Ubuntu 24.04 after installing Linux dependencies on
+the VM. `scripts/deploy-remote.sh` follows this flow.
+
+Before building, make sure the public Privy App ID is available as `NEXT_PUBLIC_PRIVY_APP_ID` (the
+script defaults to the supplied public ID). Build assets contain no API secrets:
+
+```bash
+corepack pnpm install --frozen-lockfile
+corepack pnpm build
+```
+
+Then copy source plus `.next` to the VM, install dependencies **on Linux** (never copy Windows
+`node_modules` or native `better-sqlite3` binaries), and apply migrations:
 
 ```bash
 sudo -u maat bash -lc '
@@ -117,22 +131,19 @@ sudo -u maat bash -lc '
   cd /opt/maat
   corepack pnpm install --frozen-lockfile
   set -a; . /etc/maat/maat.env; set +a
-  corepack pnpm exec next build
   corepack pnpm exec tsx scripts/migrate.ts
 '
 ```
 
-If the VM cannot build safely, build on Linux CI (same architecture) and upload `.next`,
-`node_modules` (installed on Linux, not copied from Windows), source, and the lockfile. Never copy
-Windows native binaries such as `better-sqlite3` to Linux.
+`NEXT_PUBLIC_PRIVY_APP_ID` is compiled at build time. `APP_URL`, `SESSION_SECRET`, database paths,
+and AI secrets are runtime-only values in `/etc/maat/maat.env`.
 
 Verify the build and database:
 
 ```bash
-sudo -u maat bash -lc 'cd /opt/maat && set -a; . /etc/maat/maat.env; set +a; node_modules/.bin/next --version'
+sudo -u maat bash -lc 'cd /opt/maat && node_modules/.bin/next --version'
 sudo -u maat bash -lc 'cd /opt/maat && set -a; . /etc/maat/maat.env; set +a; corepack pnpm exec tsx scripts/migrate.ts'
 ```
-
 ## 6. Services
 
 ```bash

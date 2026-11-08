@@ -14,12 +14,14 @@ import {
   ChevronDown,
   LogOut,
   RotateCcw,
+  House,
 } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
 import { Logo } from "./Logo";
 import type { ShellUser, ShellWorkspace } from "./shell-types";
 
 const NAV = [
+  { href: "/", label: "Home", icon: House },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/batches", label: "Reconciliations", icon: ArrowLeftRight },
   { href: "/reports", label: "Reports", icon: FileBarChart },
@@ -185,6 +187,9 @@ export function ShellChrome({
                   <b>{workspace.name}</b>
                   <small>{user.email ?? user.label}</small>
                 </div>
+                <Link href="/" className="popover-link">
+                  <House size={15} /> Public homepage
+                </Link>
                 <Link href="/settings" className="popover-link">
                   <Settings size={15} /> Settings
                 </Link>
@@ -242,6 +247,9 @@ export function ShellChrome({
               </button>
             </div>
             <SidebarBody workspace={workspace} user={user} pathname={pathname} />
+            <Link href="/" className="popover-link" style={{ color: "#e7e8e6" }}>
+              <House size={15} /> Public homepage
+            </Link>
             <button type="button" className="popover-button" style={{ color: "#e7e8e6", marginTop: "0.5rem" }} onClick={handleLogout}>
               <LogOut size={15} /> {workspace.isDemo ? "Exit demo" : "Sign out"}
             </button>
