@@ -2,6 +2,8 @@
 
 **Know what's paid, what's missing, and why.**
 
+Live demo: **https://199-247-1-174.sslip.io** · Repository: **https://github.com/vickman787/maat**
+
 Ma'at is a finance reconciliation workspace for small businesses and bookkeepers. It compares an
 invoices CSV with a payments CSV, auto-allocates only unambiguous exact matches, explains every
 exception with the original rows attached, records human decisions in an append-only audit trail,

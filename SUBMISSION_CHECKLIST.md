@@ -30,10 +30,11 @@ Do not infer a closing hour from a date.
 - [x] demo script (`DEMO_SCRIPT.md`)
 - [x] verification record (`VERIFICATION.md`)
 - [x] Vultr systemd/Caddy/deployment preparation (`DEPLOYMENT.md`, `deploy/`)
-- [ ] Public repository created/published (not requested here; **not done**)
+- [x] Public repository: https://github.com/vickman787/maat
 - [x] Public demo URL: https://199-247-1-174.sslip.io (HTTPS verified; temporary sslip.io hostname)
 - [ ] Recorded demo video (script ready; **not recorded**)
 - [ ] LabLab submission (not made)
+- [ ] License decision (no license file added; owner to choose)
 
 ## Remaining credentials and access
 
