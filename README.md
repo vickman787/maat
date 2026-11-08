@@ -22,6 +22,14 @@ The desktop interface uses side-by-side evidence and review panels where space p
 - Real Vultr Serverless Inference explanations, labelled as advice with source-row citations. Formatted currency values prevent minor-unit confusion. Rules remain available during provider failures.
 - Server-verified Privy sessions and workspace-scoped data access.
 
+## Vultr architecture
+
+The live backend and web app run on the Vultr VM at 199.247.1.174. Caddy terminates HTTPS and forwards requests to a Next.js process. A separate systemd-managed Node worker polls durable jobs in SQLite. Uploaded CSVs are private files scoped to a workspace. The worker performs deterministic matching, then sends only bounded exception bundles to Vultr Serverless Inference. Human review is required for uncertain allocations.
+
+Browser → Caddy HTTPS → Next.js web/API → SQLite and private CSV storage → durable job queue → matching worker → Vultr Serverless Inference → human review → transactional allocations and CSV/report exports.
+
+Privy provides email authentication, and tokens are verified by the server. The inference model is deepseek-v4.1-flash-1017. The model explains supplied evidence; it cannot write allocations or change totals. Service health checks, backups and rollback archives protect releases. This is one VM with separate web/worker processes, not a distributed cluster.
+
 ## Run locally
 
 Requires Node.js 22+ and pnpm. Install dependencies with pnpm install. Configure .env.local using .env.example, including Privy identity settings, APP_URL, SESSION_SECRET, DATABASE_URL and UPLOAD_DIR. Inference uses AI_BASE_URL, AI_API_KEY and AI_MODEL; keep secrets out of Git.
@@ -39,3 +47,7 @@ Regression fixtures live under tests/fixtures and are never automatically loaded
 ## Video
 
 DEMO_VIDEO_PLAN.md prepares the owner-selected 2 minute 30 second walkthrough. Recording uses a dedicated signed-in workspace and intentionally uploaded demonstration files. No public guest demo is required.
+
+## License
+
+MIT, copyright 2026 vickman787. See LICENSE. Third-party dependencies retain their respective licenses.

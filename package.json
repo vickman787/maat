@@ -2,6 +2,7 @@
   "name": "maat",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "Ma'at - invoice and payment reconciliation workspace",
   "packageManager": "pnpm@12.18.0",
   "engines": {
